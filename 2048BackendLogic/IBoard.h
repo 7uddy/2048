@@ -6,8 +6,25 @@ namespace game
 {
 	struct Position 
 	{
-		int row;
-		int column;
+		unsigned int row;
+		unsigned int column;
+
+		Position(unsigned int row, unsigned int column) {
+			this->row = row;
+			this->column = column;
+		}
+
+		static Position FromIndexToPosition(unsigned int boardSize, unsigned int index) 
+		{
+			unsigned int row{ index / boardSize }; 
+			unsigned int column{ index % boardSize };
+			return Position{ row, column };
+		}
+
+		static unsigned int FromPositionToIndex(unsigned int boardSize, Position position)
+		{
+			return (position.row * boardSize + position.column);
+		}
 	};
 
 	enum class Move
@@ -21,9 +38,14 @@ namespace game
 	class IBoard
 	{
 	public:
-		virtual void PlacePiece(std::shared_ptr<IPiece> piece) = 0;
+		virtual void PlacePiece(Position position, std::unique_ptr<IPiece> piece) = 0;
 		virtual void ErasePiece(Position position) = 0;
 		virtual Position GetRandomEmptyPosition() const = 0;
-		virtual void MoveBoardToDirection(Move move) = 0;
+		virtual void MovePiecesToDirection(Move move) = 0;
+
+		virtual std::string GetBoard() const = 0;
+		virtual void SetBoard(const std::string& board) = 0;
+		virtual void PrintBoard() const = 0;
+		virtual void ResetBoard() = 0;
 	};
 }

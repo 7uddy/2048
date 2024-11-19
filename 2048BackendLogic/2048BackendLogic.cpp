@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Piece.h"
+#include "Board.h"
 
 static void PieceTests()
 {
@@ -21,8 +22,27 @@ static void PieceTests()
 		std::cout << "ERROR";
 }
 
+static void BoardTests() 
+{
+	using namespace game;
+
+	//Creation of board
+	Board board{ 4 };
+
+	//Place pieces
+	board.PlacePiece(Position{ 0, 0 }, std::make_unique<Piece>(4));
+	board.PlacePiece(Position{ 1, 0 }, std::make_unique<Piece>(6));
+	board.PlacePiece(Position{ 2, 0 }, std::make_unique<Piece>(8));
+
+	//Place piece at an already occupied position.
+	board.PlacePiece(Position{ 2, 0 }, std::make_unique<Piece>(8));
+
+	//Print board
+	board.PrintBoard();
+}
+
 int main()
 {
-	PieceTests();
+	BoardTests();
 	return 0;
 }

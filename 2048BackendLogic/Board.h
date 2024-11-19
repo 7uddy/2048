@@ -1,20 +1,36 @@
 #pragma once
 #include <vector>
 #include <random>
+#include <sstream>
 #include "IBoard.h"
+#include "Piece.h"
 
 namespace game
 {
 	class Board : public IBoard
 	{
 	public:
-		void PlacePiece(std::shared_ptr<Piece> piece);
-		void ErasePiece(Position position);
-		Position GetRandomEmptyPosition() const;
-		void MoveBoardToDirection(Move move);
-	
+		Board(unsigned int size);
+
+		//Existence of pieces
+		void PlacePiece(Position position, std::unique_ptr<IPiece> piece) override;
+		void ErasePiece(Position position) override;
+		Position GetRandomEmptyPosition() const override;
+		
+		
+		//Movement of board
+		void MovePiecesToDirection(Move move) override;
+
+
+		//Functions related to board state
+		std::string GetBoard() const override;
+		void SetBoard(const std::string& board) override;
+		void PrintBoard() const override;
+		void ResetBoard() override;
+
 	private:
-		std::vector<std::shared_ptr<Piece>> m_board;
+		std::vector<std::unique_ptr<IPiece>> m_board;
 		unsigned int m_size;
+		unsigned int m_numberOfPiecesOnBoard;
 	};
 }

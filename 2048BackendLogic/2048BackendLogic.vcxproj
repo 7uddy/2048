@@ -128,9 +128,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="2048BackendLogic.cpp" />
+    <ClCompile Include="Board.cpp" />
     <ClCompile Include="Piece.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Board.h" />
     <ClInclude Include="IBoard.h" />
     <ClInclude Include="IGameListener.h" />
     <ClInclude Include="IPiece.h" />
