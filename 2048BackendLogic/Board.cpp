@@ -125,54 +125,86 @@ void game::Board::MovePiecesToDirection(Move move)
 void game::Board::MoveRowOrColumnWithData(unsigned int startIndex, unsigned int endIndex, int increaseFactorForStart)
 {
     auto GetEarliestEmptyPosition = [&]() {
-        if (startIndex < endIndex)
-        {
-            for (int currentIndex{ (int)startIndex }; currentIndex <= (int)endIndex; currentIndex += increaseFactorForStart)
-            {
-                if (!m_board[currentIndex].get())
-                {
-                    return currentIndex;
-                }
+        int currentIndex = (int)startIndex;
+        int step = (startIndex < endIndex) ? increaseFactorForStart : -increaseFactorForStart;
 
-            }
-        }
-        else
+        while ((startIndex < endIndex && currentIndex <= (int)endIndex) || (startIndex >= endIndex && currentIndex >= (int)endIndex))
         {
-            for (int currentIndex{ (int)startIndex }; currentIndex >= (int)endIndex; currentIndex += increaseFactorForStart)
+            if (!m_board[currentIndex].get())
             {
-                if (!m_board[currentIndex].get())
-                {
-                    return currentIndex;
-                }
-
+                return currentIndex;
             }
+            currentIndex += step;
         }
+
+        return INT_MAX;
     };
 
-    unsigned int indexOfEarliestEmptyPosition{ INT_MAX }, indexOfSecondEarliestEmptyPosition{ INT_MAX };
+
+    int indexOfEarliestEmptyPosition{ GetEarliestEmptyPosition() };
     bool moved{ false };
 
     if (startIndex < endIndex)
     {
         for (int currentIndex{ (int)startIndex }; currentIndex <= (int)endIndex; currentIndex += increaseFactorForStart)
         {
-            //Check if current position has a piece and update emptyPosition if there wasn't found one already
-            if (indexOfEarliestEmptyPosition == INT_MAX && !m_board[currentIndex].get())
+            //Check if current position is empty.
+            if (!m_board[currentIndex].get())
             {
-                indexOfEarliestEmptyPosition = currentIndex;
+                /*  // This can be completely skipped if using GetEarliestEmptyPosition.
+                if (indexOfEarliestEmptyPosition == INT_MAX)
+                    indexOfEarliestEmptyPosition = currentIndex;
+                */
+                continue;
             }
 
-            if (!m_board[currentIndex].get())
-                continue;
+            //Means that there is a piece at currnet position.
 
-            //If there exists an empty position, move the current piece to it
-            moved = false;
-            if (indexOfEarliestEmptyPosition != currentIndex && indexOfEarliestEmptyPosition != INT_MAX)
+            //If there exists an empty position, move the current piece to it.
+            if (indexOfEarliestEmptyPosition != INT_MAX)
             {
                 m_board[indexOfEarliestEmptyPosition].swap(m_board[currentIndex]);
-                moved = true;
-                indexOfEarliestEmptyPosition = GetEarliestEmptyPosition();
-                //indexOfEarliestEmptyPosition = INT_MAX;
+                
+                //Check if there exists a previosu position
+                auto previousPosition{ indexOfEarliestEmptyPosition - increaseFactorForStart };
+                if (previousPosition < 0 || previousPosition >= m_size * m_size)
+                {
+                    //Update empty index
+                    indexOfEarliestEmptyPosition = GetEarliestEmptyPosition();
+                    continue;
+                }
+                else
+                {
+                    //Check if they can combine
+                    if (m_board[previousPosition] && m_board[previousPosition]->CanCombineWith(m_board[indexOfEarliestEmptyPosition]))
+                    {
+                        auto newPiece = m_board[previousPosition]->CombinePieces(m_board[indexOfEarliestEmptyPosition]);
+                        m_board[indexOfEarliestEmptyPosition].reset();
+                        m_board[previousPosition].swap(newPiece);
+                    }
+                    else
+                    {
+                        //Update empty index
+                        indexOfEarliestEmptyPosition = GetEarliestEmptyPosition();
+                    }
+                }
+            }
+
+            //Check if the current piece can be combined with the previous piece
+            auto previousPosition{ currentIndex - increaseFactorForStart };
+            if (previousPosition < 0 || previousPosition >= m_size * m_size)
+            {
+                //No piece was before this one, so no combination.
+                continue;
+            }
+
+            //Check if the pieces can combine
+            if (m_board[previousPosition] && m_board[previousPosition]->CanCombineWith(m_board[currentIndex]))
+            {
+                auto newPiece = m_board[previousPosition]->CombinePieces(m_board[currentIndex]);
+                m_board[currentIndex].reset();
+                m_board[previousPosition].swap(newPiece);
+                indexOfEarliestEmptyPosition = currentIndex;
             }
 
         }
@@ -181,23 +213,63 @@ void game::Board::MoveRowOrColumnWithData(unsigned int startIndex, unsigned int 
     {
         for (int currentIndex{ (int)startIndex }; currentIndex >= (int)endIndex; currentIndex += increaseFactorForStart)
         {
-            //Check if current position has a piece and update emptyPosition if there wasn't found one already
-            if (indexOfEarliestEmptyPosition == INT_MAX && !m_board[currentIndex].get())
+            //Check if current position is empty.
+            if (!m_board[currentIndex].get())
             {
-                indexOfEarliestEmptyPosition = currentIndex;
+                /*  // This can be completely skipped if using GetEarliestEmptyPosition.
+                if (indexOfEarliestEmptyPosition == INT_MAX)
+                    indexOfEarliestEmptyPosition = currentIndex;
+                */
+                continue;
             }
 
-            if (!m_board[currentIndex].get())
-                continue;
+            //Means that there is a piece at currnet position.
 
-            //If there exists an empty position, move the current piece to it
-            moved = false;
-            if (indexOfEarliestEmptyPosition != currentIndex && indexOfEarliestEmptyPosition != INT_MAX)
+            //If there exists an empty position, move the current piece to it.
+            if (indexOfEarliestEmptyPosition != INT_MAX)
             {
                 m_board[indexOfEarliestEmptyPosition].swap(m_board[currentIndex]);
-                moved = true;
-                indexOfEarliestEmptyPosition = GetEarliestEmptyPosition();
-                //indexOfEarliestEmptyPosition = INT_MAX;
+
+                //Check if there exists a previosu position
+                auto previousPosition{ indexOfEarliestEmptyPosition - increaseFactorForStart };
+                if (previousPosition < 0 || previousPosition >= m_size * m_size)
+                {
+                    //Update empty index
+                    indexOfEarliestEmptyPosition = GetEarliestEmptyPosition();
+                    continue;
+                }
+                else
+                {
+                    //Check if they can combine
+                    if (m_board[previousPosition] && m_board[previousPosition]->CanCombineWith(m_board[indexOfEarliestEmptyPosition]))
+                    {
+                        auto newPiece = m_board[previousPosition]->CombinePieces(m_board[indexOfEarliestEmptyPosition]);
+                        m_board[indexOfEarliestEmptyPosition].reset();
+                        m_board[previousPosition].swap(newPiece);
+                    }
+                    else
+                    {
+                        //Update empty index
+                        indexOfEarliestEmptyPosition = GetEarliestEmptyPosition();
+                    }
+                }
+            }
+
+            //Check if the current piece can be combined with the previous piece
+            auto previousPosition{ currentIndex - increaseFactorForStart };
+            if (previousPosition < 0 || previousPosition >= m_size * m_size)
+            {
+                //No piece was before this one, so no combination.
+                continue;
+            }
+
+            //Check if the pieces can combine
+            if (m_board[previousPosition] && m_board[previousPosition]->CanCombineWith(m_board[currentIndex]))
+            {
+                auto newPiece = m_board[previousPosition]->CombinePieces(m_board[currentIndex]);
+                m_board[currentIndex].reset();
+                m_board[previousPosition].swap(newPiece);
+                indexOfEarliestEmptyPosition = currentIndex;
             }
 
         }
