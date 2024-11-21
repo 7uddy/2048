@@ -127,7 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="2048BackendLogic.cpp" />
+    <ClCompile Include="Source.cpp" />
     <ClCompile Include="Board.cpp" />
     <ClCompile Include="Piece.cpp" />
   </ItemGroup>
