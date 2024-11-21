@@ -1,5 +1,5 @@
 #pragma once
-#include <memory>
+#include <string>
 #include "IPiece.h"
 
 namespace game
@@ -27,7 +27,7 @@ namespace game
 		}
 	};
 
-	enum class Move
+	enum class Movement
 	{
 		UP = 0,
 		DOWN,
@@ -41,7 +41,7 @@ namespace game
 		virtual void PlacePiece(Position position, std::shared_ptr<IPiece> piece) = 0;
 		virtual void ErasePiece(Position position) = 0;
 		virtual Position GetRandomEmptyPosition() const = 0;
-		virtual void MovePiecesToDirection(Move move) = 0;
+		virtual void MovePiecesToDirection(Movement move) = 0;
 
 		virtual std::string GetBoard() const = 0;
 		virtual void SetBoard(const std::string& board) = 0;

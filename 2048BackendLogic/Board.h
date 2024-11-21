@@ -19,7 +19,7 @@ namespace game
 		
 		
 		//Movement of board
-		void MovePiecesToDirection(Move move) override;
+		void MovePiecesToDirection(Movement move) override;
 
 
 		//Functions related to board state
@@ -29,10 +29,12 @@ namespace game
 		void ResetBoard() override;
 
 	private:
+		void MoveRowOrColumnWithData(unsigned int startIndex, unsigned int endIndex, int increaseFactorForStart) override;
+
+	private:
 		std::vector<std::shared_ptr<IPiece>> m_board;
 		unsigned int m_size;
 		unsigned int m_numberOfPiecesOnBoard;
 
-		void MoveRowOrColumnWithData(unsigned int startIndex, unsigned int endIndex, int increaseFactorForStart) override;
 	};
 }

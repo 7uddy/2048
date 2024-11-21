@@ -12,3 +12,6 @@ public:
 
 	virtual ~IGameListener() = default;
 };
+
+using IGameListenerPtr = std::shared_ptr<IGameListener>;
+using IGameListenerWeakPtr = std::weak_ptr<IGameListener>;

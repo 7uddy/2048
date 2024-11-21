@@ -28,6 +28,10 @@ void game::Board::PlacePiece(Position position, std::shared_ptr<IPiece> piece)
             m_board[indexInBoard] = std::dynamic_pointer_cast<Piece>(m_board[indexInBoard]->CombinePieces(piece));
             std::cout << " => Placed combined " << m_board[indexInBoard]->GetValue() << " at position (" << position.row << ", " << position.column << ")" << std::endl;
         }
+        else
+        {
+            std::cout << "Could not place " << piece->GetValue() << " at position (" << position.row << ", " << position.column << ")";
+        }
     }
     else
     {
@@ -59,7 +63,7 @@ game::Position game::Board::GetRandomEmptyPosition() const
     return Position::FromIndexToPosition(m_size, index);
 }
 
-void game::Board::MovePiecesToDirection(Move move)
+void game::Board::MovePiecesToDirection(Movement move)
 {
     unsigned int startIndex{}, endIndex{};
     int increaseFactorForStart{}, increaseFactorForEnd{};
@@ -67,28 +71,28 @@ void game::Board::MovePiecesToDirection(Move move)
 
     switch (move)
     {
-    case Move::DOWN:
+    case Movement::DOWN:
         startIndex = m_size * (m_size - 1);
         endIndex = 0u;
         increaseFactorForStart = -(int)m_size;
         increaseFactorForEnd = 1u;
 
         break;
-    case Move::UP:
+    case Movement::UP:
         startIndex = 0u;
         endIndex = m_size * (m_size - 1);
         increaseFactorForStart = m_size;
         increaseFactorForEnd = 1u;
 
         break;
-    case Move::RIGHT:
+    case Movement::RIGHT:
         startIndex = m_size - 1u;
         endIndex = 0u;
         increaseFactorForStart = -1;
         increaseFactorForEnd = m_size;
 
         break;
-    case Move::LEFT:
+    case Movement::LEFT:
         startIndex = 0u;
         endIndex = m_size - 1u;
         increaseFactorForStart = 1;
@@ -104,10 +108,11 @@ void game::Board::MovePiecesToDirection(Move move)
     //Process each line or column based on direction
     for (int index{ 0 }; index < (int)m_size; index++)
     {
+        //std::cout << "\n" << startIndex << " to " << endIndex << "\n";
         MoveRowOrColumnWithData(startIndex, endIndex, increaseFactorForStart);
         
         //Move to the next line
-        if (move == Move::LEFT || move == Move::RIGHT)
+        if (move == Movement::LEFT || move == Movement::RIGHT)
         {
             startIndex += m_size;
             endIndex += m_size;
@@ -125,24 +130,31 @@ void game::Board::MovePiecesToDirection(Move move)
 void game::Board::MoveRowOrColumnWithData(unsigned int startIndex, unsigned int endIndex, int increaseFactorForStart)
 {
     auto GetEarliestEmptyPosition = [&]() {
-        int currentIndex = (int)startIndex;
-        int step = (startIndex < endIndex) ? increaseFactorForStart : -increaseFactorForStart;
-
-        while ((startIndex < endIndex && currentIndex <= (int)endIndex) || (startIndex >= endIndex && currentIndex >= (int)endIndex))
+        if (startIndex < endIndex)
         {
-            if (!m_board[currentIndex].get())
+            for (int currentIndex{ (int)startIndex }; currentIndex <= (int)endIndex; currentIndex += increaseFactorForStart)
             {
-                return currentIndex;
+                if (!m_board[currentIndex].get())
+                {
+                    return currentIndex;
+                }
             }
-            currentIndex += step;
         }
-
+        else
+        {
+            for (int currentIndex{ (int)startIndex }; currentIndex >= (int)endIndex; currentIndex += increaseFactorForStart)
+            {
+                if (!m_board[currentIndex].get())
+                {
+                    return currentIndex;
+                }
+            }
+        }
         return INT_MAX;
     };
 
 
     int indexOfEarliestEmptyPosition{ GetEarliestEmptyPosition() };
-    bool moved{ false };
 
     if (startIndex < endIndex)
     {
@@ -158,7 +170,7 @@ void game::Board::MoveRowOrColumnWithData(unsigned int startIndex, unsigned int 
                 continue;
             }
 
-            //Means that there is a piece at currnet position.
+            //Means that there is a piece at current position.
 
             //If there exists an empty position, move the current piece to it.
             if (indexOfEarliestEmptyPosition != INT_MAX)
@@ -167,7 +179,7 @@ void game::Board::MoveRowOrColumnWithData(unsigned int startIndex, unsigned int 
                 
                 //Check if there exists a previosu position
                 auto previousPosition{ indexOfEarliestEmptyPosition - increaseFactorForStart };
-                if (previousPosition < 0 || previousPosition >= m_size * m_size)
+                if (previousPosition < startIndex || previousPosition > endIndex)
                 {
                     //Update empty index
                     indexOfEarliestEmptyPosition = GetEarliestEmptyPosition();
@@ -192,7 +204,7 @@ void game::Board::MoveRowOrColumnWithData(unsigned int startIndex, unsigned int 
 
             //Check if the current piece can be combined with the previous piece
             auto previousPosition{ currentIndex - increaseFactorForStart };
-            if (previousPosition < 0 || previousPosition >= m_size * m_size)
+            if (previousPosition < startIndex || previousPosition > endIndex)
             {
                 //No piece was before this one, so no combination.
                 continue;
@@ -223,7 +235,7 @@ void game::Board::MoveRowOrColumnWithData(unsigned int startIndex, unsigned int 
                 continue;
             }
 
-            //Means that there is a piece at currnet position.
+            //Means that there is a piece at current position.
 
             //If there exists an empty position, move the current piece to it.
             if (indexOfEarliestEmptyPosition != INT_MAX)
@@ -292,7 +304,7 @@ std::string game::Board::GetBoard() const
 
     for (size_t index{ 0u }; index < m_board.size(); ++index)
     {
-        if (index % m_size == 0) 
+        if (index != 0 && index % m_size == 0)
         {
             boardStream << std::endl;
         }
