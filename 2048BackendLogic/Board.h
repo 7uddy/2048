@@ -13,13 +13,13 @@ namespace game
 		Board(unsigned int size);
 
 		//Existence of pieces
-		void PlacePiece(Position position, std::unique_ptr<IPiece> piece) override;
+		void PlacePiece(Position position, std::shared_ptr<IPiece> piece) override;
 		void ErasePiece(Position position) override;
 		Position GetRandomEmptyPosition() const override;
 		
 		
 		//Movement of board
-		void MovePiecesToDirection(Move move) override;
+		void MovePiecesToDirection(Movement move) override;
 
 
 		//Functions related to board state
@@ -29,8 +29,12 @@ namespace game
 		void ResetBoard() override;
 
 	private:
-		std::vector<std::unique_ptr<IPiece>> m_board;
+		void MoveRowOrColumnWithData(unsigned int startIndex, unsigned int endIndex, int increaseFactorForStart) override;
+
+	private:
+		std::vector<std::shared_ptr<IPiece>> m_board;
 		unsigned int m_size;
 		unsigned int m_numberOfPiecesOnBoard;
+
 	};
 }

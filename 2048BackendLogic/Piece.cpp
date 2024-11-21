@@ -19,6 +19,8 @@ void Piece::SetValue(int value)
 
 bool Piece::CanCombineWith(std::shared_ptr<IPiece> piece2) const
 {
+	if (!piece2.get())
+		return false;
 	return this->GetValue() == piece2->GetValue();
 }
 
