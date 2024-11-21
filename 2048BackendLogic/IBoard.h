@@ -38,7 +38,7 @@ namespace game
 	class IBoard
 	{
 	public:
-		virtual void PlacePiece(Position position, std::unique_ptr<IPiece> piece) = 0;
+		virtual void PlacePiece(Position position, std::shared_ptr<IPiece> piece) = 0;
 		virtual void ErasePiece(Position position) = 0;
 		virtual Position GetRandomEmptyPosition() const = 0;
 		virtual void MovePiecesToDirection(Move move) = 0;
@@ -47,5 +47,8 @@ namespace game
 		virtual void SetBoard(const std::string& board) = 0;
 		virtual void PrintBoard() const = 0;
 		virtual void ResetBoard() = 0;
+
+	private:
+		virtual void MoveRowOrColumnWithData(unsigned int startIndex, unsigned int endIndex, int increaseFactorForStart) = 0;
 	};
 }

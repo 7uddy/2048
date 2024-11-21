@@ -30,12 +30,15 @@ static void BoardTests()
 	Board board{ 4 };
 
 	//Place pieces
-	board.PlacePiece(Position{ 0, 0 }, std::make_unique<Piece>(4));
-	board.PlacePiece(Position{ 1, 0 }, std::make_unique<Piece>(6));
-	board.PlacePiece(Position{ 2, 0 }, std::make_unique<Piece>(8));
+	board.PlacePiece(Position{ 2, 3 }, std::make_shared<Piece>(4));
+	board.PlacePiece(Position{ 2, 0 }, std::make_shared<Piece>(8));
+	board.PlacePiece(Position{ 3, 0 }, std::make_shared<Piece>(8));
 
-	//Place piece at an already occupied position.
-	board.PlacePiece(Position{ 2, 0 }, std::make_unique<Piece>(8));
+	//Place piece at an already occupied position. => Combination
+	board.PlacePiece(Position{ 2, 0 }, std::make_shared<Piece>(8));
+
+	//Move board
+	board.MovePiecesToDirection(Move::UP);
 
 	//Print board
 	board.PrintBoard();
