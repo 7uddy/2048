@@ -64,6 +64,16 @@ void game::Game::Move(Movement direction)
         }
     }
 
+    //TO DO - TO BE IMPLEMENTED
+    /*if (CanStillMove())
+    {
+        NotifyListenersForMoveDone();
+    }
+    else
+    {
+        NotifyListenersForGameOver();
+    }*/
+
 }
 
 void game::Game::SetBoard(const std::string& board)
@@ -278,4 +288,27 @@ void game::Game::MoveRowOrColumnWithData(unsigned int startIndex, unsigned int e
         }
     }
 
+}
+
+void game::Game::NotifyListenersForMoveDone() const
+{
+    for (auto& listener : m_observers)
+    {
+        if (auto sp = listener.lock())
+        {
+            sp->OnMoveDone();
+        }
+
+    }
+}
+
+void game::Game::NotifyListenersForGameOver() const
+{
+    for (auto& listener : m_observers)
+    {
+        if (auto sp = listener.lock())
+        {
+            sp->OnGameOver();
+        }
+    }
 }

@@ -41,9 +41,9 @@ namespace game
 		virtual std::shared_ptr<IPiece> GetPieceAtPosition(Position position) const = 0;
 		virtual void PlacePiece(Position position, std::shared_ptr<IPiece> piece) = 0;
 		virtual void ErasePiece(Position position) = 0;
-		virtual Position GetRandomEmptyPosition() const = 0;
-
 		virtual void SwapPiecesAtPositions(Position position1, Position position2) = 0;
+
+		virtual Position GetRandomEmptyPosition() const = 0;
 
 		virtual std::string GetBoard() const = 0;
 		virtual void SetBoard(const std::string& board) = 0;

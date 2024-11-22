@@ -16,9 +16,10 @@ namespace game
 		std::shared_ptr<IPiece> GetPieceAtPosition(Position position) const override;
 		void PlacePiece(Position position, std::shared_ptr<IPiece> piece) override;
 		void ErasePiece(Position position) override;
-		Position GetRandomEmptyPosition() const override;
-
 		void SwapPiecesAtPositions(Position position1, Position position2) override;
+
+		//Get empty position of board
+		Position GetRandomEmptyPosition() const override;
 
 		//Functions related to board state
 		std::string GetBoard() const override;

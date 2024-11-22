@@ -10,7 +10,9 @@ namespace game
 	{
 	public:
 		Game(unsigned int sizeOfBoard);
+
 		void Move(Movement move) override;
+
 		void SetBoard(const std::string& board) override;
 		std::string GetBoard() const override;
 
@@ -20,8 +22,12 @@ namespace game
 	private:
 		void MoveRowOrColumnWithData(unsigned int startIndex, unsigned int endIndex, int increaseFactorForStart) override;
 
+		void NotifyListenersForMoveDone() const override;
+		void NotifyListenersForGameOver() const override;
+
 	private:
 		Board m_board;
 		std::vector<IGameListenerWeakPtr> m_observers;
+
 	};
 }

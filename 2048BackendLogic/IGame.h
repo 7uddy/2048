@@ -14,6 +14,8 @@ namespace game
 
 		virtual void AddListener(IGameListenerPtr observer) = 0;
 		virtual void RemoveListener(IGameListener* observer) = 0;
+		virtual void NotifyListenersForMoveDone() const = 0;
+		virtual void NotifyListenersForGameOver() const = 0;
 
 	private:
 		virtual void MoveRowOrColumnWithData(unsigned int startIndex, unsigned int endIndex, int increaseFactorForStart) = 0;
