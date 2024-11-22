@@ -13,23 +13,21 @@ namespace game
 		Board(unsigned int size);
 
 		//Existence of pieces
+		std::shared_ptr<IPiece> GetPieceAtPosition(Position position) const override;
 		void PlacePiece(Position position, std::shared_ptr<IPiece> piece) override;
 		void ErasePiece(Position position) override;
 		Position GetRandomEmptyPosition() const override;
-		
-		
-		//Movement of board
-		void MovePiecesToDirection(Movement move) override;
 
+		void SwapPiecesAtPositions(Position position1, Position position2) override;
 
 		//Functions related to board state
 		std::string GetBoard() const override;
 		void SetBoard(const std::string& board) override;
-		void PrintBoard() const override;
 		void ResetBoard() override;
 
-	private:
-		void MoveRowOrColumnWithData(unsigned int startIndex, unsigned int endIndex, int increaseFactorForStart) override;
+		//Functions related to board data
+		int GetNumberOfPiecesOnBoard() const override;
+		int GetBoardSize() const override;
 
 	private:
 		std::vector<std::shared_ptr<IPiece>> m_board;

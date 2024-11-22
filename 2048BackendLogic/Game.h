@@ -1,4 +1,6 @@
 #pragma once
+#include <iostream>
+
 #include "IGame.h"
 #include "Board.h"
 
@@ -14,6 +16,10 @@ namespace game
 
 		void AddListener(IGameListenerPtr observer) override;
 		void RemoveListener(IGameListener* observer) override;
+
+	private:
+		void MoveRowOrColumnWithData(unsigned int startIndex, unsigned int endIndex, int increaseFactorForStart) override;
+
 	private:
 		Board m_board;
 		std::vector<IGameListenerWeakPtr> m_observers;

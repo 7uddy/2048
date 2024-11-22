@@ -38,17 +38,19 @@ namespace game
 	class IBoard
 	{
 	public:
+		virtual std::shared_ptr<IPiece> GetPieceAtPosition(Position position) const = 0;
 		virtual void PlacePiece(Position position, std::shared_ptr<IPiece> piece) = 0;
 		virtual void ErasePiece(Position position) = 0;
 		virtual Position GetRandomEmptyPosition() const = 0;
-		virtual void MovePiecesToDirection(Movement move) = 0;
+
+		virtual void SwapPiecesAtPositions(Position position1, Position position2) = 0;
 
 		virtual std::string GetBoard() const = 0;
 		virtual void SetBoard(const std::string& board) = 0;
-		virtual void PrintBoard() const = 0;
 		virtual void ResetBoard() = 0;
 
-	private:
-		virtual void MoveRowOrColumnWithData(unsigned int startIndex, unsigned int endIndex, int increaseFactorForStart) = 0;
+		virtual int GetNumberOfPiecesOnBoard() const = 0;
+		virtual int GetBoardSize() const = 0;
+
 	};
 }
