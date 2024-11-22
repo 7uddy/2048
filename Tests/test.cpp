@@ -10,6 +10,19 @@ TEST(PieceTest, ConstructorTest)
     ASSERT_TRUE(piece.GetValue() == 2);
 }
 
+TEST(PieceTest, CombineWithTest)
+{
+    std::shared_ptr<Piece> p1, p2;
+    p1 = std::make_shared<Piece>();
+    p2 = std::make_shared<Piece>();
+
+    ASSERT_FALSE(p1->CanCombineWith(p1));
+    ASSERT_TRUE(p1->CanCombineWith(p2));
+
+    p2 = p1;
+    ASSERT_FALSE(p1->CanCombineWith(p2));
+}
+
 TEST(BoardTest, ConstructorTest)
 {
     game::Board board{3};

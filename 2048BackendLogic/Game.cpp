@@ -1,12 +1,9 @@
 #include "Game.h"
 
-game::Game::Game(unsigned int sizeOfBoard) : m_board{sizeOfBoard}
+game::Game::Game(unsigned int sizeOfBoard) : m_board{ sizeOfBoard }
 {
-    for (int i = 0; i < 9; i++)
-    {
-        auto position = m_board.GetRandomEmptyPosition();
-        m_board.PlacePiece(position, std::make_shared<Piece>());
-    }
+    m_board.PlacePiece(m_board.GetRandomEmptyPosition(), std::make_shared<Piece>());
+    m_board.PlacePiece(m_board.GetRandomEmptyPosition(), std::make_shared<Piece>());
 }
 
 void game::Game::Move(Movement direction)
@@ -51,7 +48,6 @@ void game::Game::Move(Movement direction)
     //Process each line or column based on direction
     for (int index{ 0 }; index < (int)m_size; index++)
     {
-        //std::cout << "\n" << startIndex << " to " << endIndex << "\n";
         MoveRowOrColumnWithData(startIndex, endIndex, increaseFactorForStart);
 
         //Move to the next line
