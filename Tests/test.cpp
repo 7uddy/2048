@@ -22,7 +22,7 @@ TEST(BoardTest, ConstructorTest)
 
 TEST(GameTest, MoveTest)
 {
-    Game game{ 3 };
+    Game game{ 4 };
 
     //game.SetBoard("2 0 0 \
     //               0 0 0 \
@@ -32,7 +32,7 @@ TEST(GameTest, MoveTest)
     std::cout << game.GetBoard();
     std::cout << '\n';
 
-    game.Move(Movement::LEFT);
+    game.Move(Movement::UP);
 
     std::cout << '\n';
     std::cout << game.GetBoard();
