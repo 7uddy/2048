@@ -11,7 +11,9 @@ namespace game
 	public:
 		Game(unsigned int sizeOfBoard);
 
-		void Move(Movement move) override;
+		void ApplyMove(Movement move) override;
+
+		bool IsGameOver() override;
 
 		void SetBoard(const std::string& board) override;
 		std::string GetBoard() const override;

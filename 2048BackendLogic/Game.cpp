@@ -2,13 +2,13 @@
 
 game::Game::Game(unsigned int sizeOfBoard) : m_board{ sizeOfBoard }
 {
-    for (int i = 0; i < 2; i++)
+    for (unsigned int i{ 0u }; i < std::min(2u, sizeOfBoard); ++i)
     {
         PlacePieceAtRandomPosition();
     }
 }
 
-void game::Game::Move(Movement direction)
+void game::Game::ApplyMove(Movement direction)
 {
     if (direction == Movement::LEFT || direction == Movement::RIGHT)
         m_board.FlipDiagonally();
@@ -16,8 +16,9 @@ void game::Game::Move(Movement direction)
     if (direction == Movement::UP || direction == Movement::LEFT)
         m_board.FlipVertically();
 
+    bool modificationWasMade{ false };
     for (unsigned int index{ 0 }; index < m_board.GetBoardSize(); ++index)
-        m_board.SquashColumn(index);
+        modificationWasMade = modificationWasMade || m_board.SquashColumn(index);
 
     if (direction == Movement::UP || direction == Movement::LEFT)
         m_board.FlipVertically();
@@ -25,10 +26,10 @@ void game::Game::Move(Movement direction)
     if (direction == Movement::LEFT || direction == Movement::RIGHT)
         m_board.FlipDiagonally();
 
-    PlacePieceAtRandomPosition();
+    if (modificationWasMade)
+        PlacePieceAtRandomPosition();
 
-    //TO DO - TO BE IMPLEMENTED
-    if (/*CanStillMove()*/ true)
+    if (!IsGameOver())
     {
         NotifyListenersForMoveDone();
     }
@@ -36,7 +37,6 @@ void game::Game::Move(Movement direction)
     {
         NotifyListenersForGameOver();
     }
-
 }
 
 void game::Game::SetBoard(const std::string& board)
@@ -95,10 +95,18 @@ void game::Game::NotifyListenersForGameOver() const
 
 void game::Game::PlacePieceAtRandomPosition()
 {
+    if (m_board.IsBoardFull())
+        return;
+
     Position position{ m_board.GetRandomEmptyPosition() };
     while (m_board.GetPieceAtPosition(position))
     {
         position = m_board.GetRandomEmptyPosition();
     }
     m_board.PlacePiece(position, std::make_shared<Piece>());
+}
+
+bool game::Game::IsGameOver()
+{
+    return false;
 }

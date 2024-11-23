@@ -13,18 +13,6 @@ namespace game
 			this->row = row;
 			this->column = column;
 		}
-
-		static Position FromIndexToPosition(unsigned int boardSize, unsigned int index) 
-		{
-			unsigned int row{ index / boardSize }; 
-			unsigned int column{ index % boardSize };
-			return Position{ row, column };
-		}
-
-		static unsigned int FromPositionToIndex(unsigned int boardSize, Position position)
-		{
-			return (position.row * boardSize + position.column);
-		}
 	};
 
 	enum class Movement
@@ -49,11 +37,13 @@ namespace game
 		virtual void SetBoard(const std::string& board) = 0;
 		virtual void ResetBoard() = 0;
 
-		virtual unsigned int GetNumberOfPiecesOnBoard() const = 0;
+		virtual bool IsBoardFull() const = 0;
 		virtual unsigned int GetBoardSize() const = 0;
 
-		virtual void SquashColumn(unsigned int columIndex) = 0;
+		virtual bool SquashColumn(unsigned int columIndex) = 0;
 		virtual void FlipVertically() = 0;
 		virtual void FlipDiagonally() = 0;
+
+		virtual bool IsPositionValid(Position position) const = 0;
 	};
 }

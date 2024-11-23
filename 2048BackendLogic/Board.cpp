@@ -5,7 +5,7 @@ using namespace game;
 
 game::Board::Board(unsigned int size) : m_size{ size }, m_numberOfPiecesOnBoard{ 0u }
 {
-    for (int indexLine = 0; indexLine < m_size; indexLine++)
+    for (unsigned int indexLine{ 0u }; indexLine < m_size; ++indexLine)
     {
         std::vector<std::shared_ptr<IPiece>> newLine{ m_size };
         m_board.emplace_back(std::move(newLine));
@@ -14,7 +14,7 @@ game::Board::Board(unsigned int size) : m_size{ size }, m_numberOfPiecesOnBoard{
 
 void game::Board::PlacePiece(Position position, std::shared_ptr<IPiece> piece)
 {
-    if (position.row == INT_MAX || position.column == INT_MAX || !piece)
+    if (!IsPositionValid(position))
         return;
 
     if (!m_board[position.row][position.column])
@@ -26,7 +26,7 @@ void game::Board::PlacePiece(Position position, std::shared_ptr<IPiece> piece)
 
 void game::Board::ErasePiece(Position position)
 {
-    if (position.row == INT_MAX || position.column == INT_MAX)
+    if (!IsPositionValid(position))
         return;
 
     if (m_board[position.row][position.column])
@@ -39,7 +39,7 @@ void game::Board::ErasePiece(Position position)
 game::Position game::Board::GetRandomEmptyPosition() const
 {
     Position pos{ INT_MAX, INT_MAX };
-    if (m_numberOfPiecesOnBoard == m_size * m_size)
+    if (IsBoardFull())
         return pos;
 
     static std::random_device rd;
@@ -63,9 +63,9 @@ void game::Board::ResetBoard()
     m_numberOfPiecesOnBoard = 0u;
 }
 
-unsigned int game::Board::GetNumberOfPiecesOnBoard() const
+bool game::Board::IsBoardFull() const
 {
-    return m_numberOfPiecesOnBoard;
+    return m_numberOfPiecesOnBoard == (m_size * m_size);
 }
 
 unsigned int game::Board::GetBoardSize() const
@@ -73,8 +73,9 @@ unsigned int game::Board::GetBoardSize() const
     return m_size;
 }
 
-void game::Board::SquashColumn(unsigned int columnIndex)
+bool game::Board::SquashColumn(unsigned int columnIndex)
 {
+    bool modificationWasMade{ false };
     for (int destinationIndex{ (int)m_size - 1 }; destinationIndex >= 0; --destinationIndex)
     {
         int sourceIndex{ destinationIndex - 1 };
@@ -88,19 +89,22 @@ void game::Board::SquashColumn(unsigned int columnIndex)
         {
             PlacePiece(Position{ (unsigned int)destinationIndex, columnIndex }, m_board[sourceIndex][columnIndex]->CombinePieces(m_board[destinationIndex][columnIndex]));
             ErasePiece(Position{ (unsigned int)sourceIndex, columnIndex });
+            modificationWasMade = true;
         }
 
         if (!m_board[destinationIndex][columnIndex])
         {
             SwapPiecesAtPositions(Position{ (unsigned int)destinationIndex, columnIndex }, Position{ (unsigned int)sourceIndex, columnIndex });
             ++destinationIndex;
+            modificationWasMade = true;
         }
     }
+    return modificationWasMade;
 }
 
 void game::Board::FlipVertically()
 {
-    int indexLine{ 0 }, increaseFactor{ 0 };
+    unsigned int indexLine{ 0 }, increaseFactor{ 0 };
     for (; indexLine < m_size; ++indexLine)
     {
         for (increaseFactor = 0; increaseFactor < m_size / 2; ++increaseFactor)
@@ -113,7 +117,7 @@ void game::Board::FlipVertically()
 
 void game::Board::FlipDiagonally()
 {
-    int rowIndex{ 0 }, columnIndex{};
+    unsigned rowIndex{ 0 }, columnIndex{};
     for (; rowIndex < m_size; ++rowIndex)
     {
         for (columnIndex = rowIndex + 1; columnIndex < m_size; ++columnIndex)
@@ -123,13 +127,29 @@ void game::Board::FlipDiagonally()
     }
 }
 
+bool game::Board::IsPositionValid(Position position) const
+{
+    if (position.row < 0 || position.row >= m_size)
+        return false;
+    if (position.column < 0 || position.column >= m_size)
+        return false;
+
+    return true;
+}
+
 void game::Board::SwapPiecesAtPositions(Position position1, Position position2)
 {
+    if (!IsPositionValid(position1) || !IsPositionValid(position2))
+        return;
+
     m_board[position1.row][position1.column].swap(m_board[position2.row][position2.column]);
 }
 
 std::shared_ptr<IPiece> game::Board::GetPieceAtPosition(Position position) const
 {
+    if (!IsPositionValid(position))
+        return nullptr;
+
     return m_board[position.row][position.column];
 }
 
@@ -160,16 +180,27 @@ void game::Board::SetBoard(const std::string& board)
 {
     ResetBoard();
     std::istringstream stream(board);
-    unsigned int currentIndex{ 0u };
+    unsigned int currentRowIndex{ 0u }, currentColumnIndex{ 0u };
     int number{ 0 };
-
-    while (stream >> number)
+    try
     {
-        if (number == 0)
+        while (stream >> number && currentRowIndex < m_size)
         {
-            currentIndex++;
-            continue;
+            if (number == 0)
+            {
+                currentColumnIndex++;
+                if (currentColumnIndex == m_size)
+                {
+                    currentRowIndex++;
+                    currentColumnIndex = 0u;
+                }
+                continue;
+            }
+            PlacePiece(Position{ currentRowIndex, currentColumnIndex++ }, std::make_shared<Piece>(number));
         }
-        PlacePiece(Position::FromIndexToPosition(m_size, currentIndex++), std::make_shared<Piece>(number));
+    }
+    catch (...)
+    {
+        ResetBoard();
     }
 }
