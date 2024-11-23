@@ -23,5 +23,7 @@ namespace game
 
 		virtual void NotifyListenersForMoveDone() const = 0;
 		virtual void NotifyListenersForGameOver() const = 0;
+
+		virtual void ApplyMoveUtil(Movement position) = 0;
 	};
 }

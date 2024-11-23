@@ -29,11 +29,9 @@ void game::Game::ApplyMove(Movement direction)
     if (modificationWasMade)
         PlacePieceAtRandomPosition();
 
-    if (!IsGameOver())
-    {
-        NotifyListenersForMoveDone();
-    }
-    else
+    NotifyListenersForMoveDone();
+    
+    if (IsGameOver())
     {
         NotifyListenersForGameOver();
     }
@@ -108,5 +106,43 @@ void game::Game::PlacePieceAtRandomPosition()
 
 bool game::Game::IsGameOver()
 {
-    return false;
+
+    std::string currentBoard{ m_board.GetBoard() };
+
+    ApplyMoveUtil(Movement::UP);
+    ApplyMoveUtil(Movement::DOWN);
+    ApplyMoveUtil(Movement::LEFT);
+    ApplyMoveUtil(Movement::RIGHT);
+
+    std::string newBoard{ m_board.GetBoard() };
+
+    if (currentBoard != newBoard)
+    {
+        m_board.SetBoard(currentBoard);
+        return false;
+    }
+    return true;
+}
+
+void game::Game::ApplyMoveUtil(Movement direction)
+{
+    if (direction == Movement::LEFT || direction == Movement::RIGHT)
+        m_board.FlipDiagonally();
+
+    if (direction == Movement::UP || direction == Movement::LEFT)
+        m_board.FlipVertically();
+
+    bool modificationWasMade{ false };
+    for (unsigned int index{ 0 }; index < m_board.GetBoardSize(); ++index)
+    {
+        modificationWasMade = modificationWasMade || m_board.SquashColumn(index);
+        if (modificationWasMade)
+            return;
+    }
+
+    if (direction == Movement::UP || direction == Movement::LEFT)
+        m_board.FlipVertically();
+
+    if (direction == Movement::LEFT || direction == Movement::RIGHT)
+        m_board.FlipDiagonally();
 }

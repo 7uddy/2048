@@ -23,6 +23,7 @@ namespace game
 
 	private:
 		void PlacePieceAtRandomPosition() override;
+		void ApplyMoveUtil(Movement position) override;
 
 		void NotifyListenersForMoveDone() const override;
 		void NotifyListenersForGameOver() const override;
