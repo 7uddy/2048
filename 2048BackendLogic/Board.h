@@ -27,11 +27,17 @@ namespace game
 		void ResetBoard() override;
 
 		//Functions related to board data
-		int GetNumberOfPiecesOnBoard() const override;
-		int GetBoardSize() const override;
+		unsigned int GetNumberOfPiecesOnBoard() const override;
+		unsigned int GetBoardSize() const override;
+
+		//Functions related to movement
+		void SquashColumn(unsigned int columIndex);
+		void FlipVertically();
+		void FlipDiagonally();
+
 
 	private:
-		std::vector<std::shared_ptr<IPiece>> m_board;
+		std::vector<std::vector<std::shared_ptr<IPiece>>> m_board;
 		unsigned int m_size;
 		unsigned int m_numberOfPiecesOnBoard;
 

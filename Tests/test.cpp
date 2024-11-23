@@ -27,19 +27,27 @@ TEST(PieceTest, CombineWithTest)
 
 TEST(BoardTest, ConstructorTest)
 {
-    game::Board board{3};
+    game::Board board{4};/*
+    board.PlacePiece(Position{ 0,0 }, std::make_shared<Piece>());
+    board.PlacePiece(Position{ 1,0 }, std::make_shared<Piece>());
+    board.PlacePiece(Position{ 0,1 }, std::make_shared<Piece>(4));
+    board.PlacePiece(Position{ 0,2 }, std::make_shared<Piece>());
+    board.PlacePiece(Position{ 0,3 }, std::make_shared<Piece>(4));
+    std::cout << board.GetBoard() << std::endl;
+    board.Squash(Movement::RIGHT);
+    std::cout << board.GetBoard() << std::endl;
+    board.Squash(Movement::DOWN);
+    std::cout << board.GetBoard() << std::endl;
+    board.Squash(Movement::LEFT);
+    std::cout << board.GetBoard();*/
+
 }
 
 TEST(GameTest, MoveTest)
 {
     Game game{ 3 };
 
-    //game.SetBoard("2 0 0 0 \
-    //               0 0 0 0\
-    //               0 0 0 0\
-    //               0 0 0 0");
-
-    /*std::cout << '\n';
+    std::cout << '\n';
     std::cout << game.GetBoard();
     std::cout << '\n';
 
@@ -61,7 +69,7 @@ TEST(GameTest, MoveTest)
     std::cout << game.GetBoard();
     std::cout << '\n';
 
-    game.Move(Movement::UP);*/
+    game.Move(Movement::UP);
 
 
 

@@ -49,8 +49,11 @@ namespace game
 		virtual void SetBoard(const std::string& board) = 0;
 		virtual void ResetBoard() = 0;
 
-		virtual int GetNumberOfPiecesOnBoard() const = 0;
-		virtual int GetBoardSize() const = 0;
+		virtual unsigned int GetNumberOfPiecesOnBoard() const = 0;
+		virtual unsigned int GetBoardSize() const = 0;
 
+		virtual void SquashColumn(unsigned int columIndex) = 0;
+		virtual void FlipVertically() = 0;
+		virtual void FlipDiagonally() = 0;
 	};
 }

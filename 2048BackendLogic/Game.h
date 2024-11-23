@@ -20,8 +20,7 @@ namespace game
 		void RemoveListener(IGameListener* observer) override;
 
 	private:
-		void MoveRowOrColumnWithData(unsigned int startIndex, unsigned int endIndex, int increaseFactorForStart) override;
-		void PlacePieceRandom() override;
+		void PlacePieceAtRandomPosition() override;
 
 		void NotifyListenersForMoveDone() const override;
 		void NotifyListenersForGameOver() const override;

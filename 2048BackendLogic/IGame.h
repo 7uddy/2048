@@ -18,7 +18,6 @@ namespace game
 		virtual void NotifyListenersForGameOver() const = 0;
 
 	private:
-		virtual void MoveRowOrColumnWithData(unsigned int startIndex, unsigned int endIndex, int increaseFactorForStart) = 0;
-		virtual void PlacePieceRandom() = 0;
+		virtual void PlacePieceAtRandomPosition() = 0;
 	};
 }
