@@ -28,20 +28,16 @@ TEST(PieceTest, CombineWithTest)
 TEST(BoardTest, ConstructorTest)
 {
     game::Board board{3};
-
-    /*board.PlacePiece(Position{ 0,0 }, std::make_shared<Piece>());
-    std::cout << '\n';
-    std::cout << board.GetBoard();
-    std::cout << '\n';*/
 }
 
 TEST(GameTest, MoveTest)
 {
-    Game game{ 4 };
+    Game game{ 3 };
 
-    //game.SetBoard("2 0 0 \
-    //               0 0 0 \
-    //               0 0 0");
+    //game.SetBoard("2 0 0 0 \
+    //               0 0 0 0\
+    //               0 0 0 0\
+    //               0 0 0 0");
 
     /*std::cout << '\n';
     std::cout << game.GetBoard();
@@ -51,12 +47,29 @@ TEST(GameTest, MoveTest)
 
     std::cout << '\n';
     std::cout << game.GetBoard();
-    std::cout << '\n';*/
+    std::cout << '\n';
+
+    game.Move(Movement::UP); 
+    
+    std::cout << '\n';
+    std::cout << game.GetBoard();
+    std::cout << '\n';
+
+    game.Move(Movement::UP); 
+    
+    std::cout << '\n';
+    std::cout << game.GetBoard();
+    std::cout << '\n';
+
+    game.Move(Movement::UP);*/
+
+
+
 }
 
 TEST(ListenerTest, MovementDoneTest)
 {
-    Game game{ 4 };
+    /*Game game{ 4 };
     std::shared_ptr<IGameListener> listener{ std::make_shared<ConsoleGameListener>() };
     game.AddListener(listener);
 
@@ -68,7 +81,7 @@ TEST(ListenerTest, MovementDoneTest)
 
     std::cout << '\n';
     std::cout << game.GetBoard();
-    std::cout << '\n';
+    std::cout << '\n';*/
 }
 
 int main(int argc, char** argv) {

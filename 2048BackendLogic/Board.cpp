@@ -10,6 +10,9 @@ game::Board::Board(unsigned int size) : m_size{ size }, m_numberOfPiecesOnBoard{
 
 void game::Board::PlacePiece(Position position, std::shared_ptr<IPiece> piece)
 {
+    if (position.row == INT_MAX || position.column == INT_MAX)
+        return;
+
     const auto& positionInVector{ Position::FromPositionToIndex(m_size, position) };
     if (!m_board[positionInVector])
     {
@@ -20,6 +23,9 @@ void game::Board::PlacePiece(Position position, std::shared_ptr<IPiece> piece)
 
 void game::Board::ErasePiece(Position position)
 {
+    if (position.row == INT_MAX || position.column == INT_MAX)
+        return;
+
     const auto& positionInVector{ Position::FromPositionToIndex(m_size, position) };
     if (m_board[positionInVector])
     {
@@ -31,7 +37,7 @@ void game::Board::ErasePiece(Position position)
 game::Position game::Board::GetRandomEmptyPosition() const
 {
     if (m_numberOfPiecesOnBoard == m_size * m_size)
-        return Position(NULL, NULL);
+        return Position(INT_MAX, INT_MAX);
 
     static std::random_device rd;
     static std::mt19937 gen(rd());

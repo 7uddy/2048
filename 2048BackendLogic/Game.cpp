@@ -2,7 +2,7 @@
 
 game::Game::Game(unsigned int sizeOfBoard) : m_board{ sizeOfBoard }
 {
-    for (int i = 0; i < 1; i++)
+    for (int i = 0; i < std::min(2, (int)std::sqrt(sizeOfBoard)); i++)
     {
         PlacePieceRandom();
     }
@@ -114,184 +114,97 @@ void game::Game::RemoveListener(IGameListener* observer)
 void game::Game::MoveRowOrColumnWithData(unsigned int startIndex, unsigned int endIndex, int increaseFactorForStart)
 {
     int m_size{ m_board.GetBoardSize() };
+
+    auto IsStillOnRowOrColumn = [&](int currentIndex) {
+        return (currentIndex >= startIndex && currentIndex <= endIndex);
+    };
+
     auto GetEarliestEmptyPosition = [&]() {
-        if (startIndex < endIndex)
+        for (int currentIndex{ (int)startIndex }; IsStillOnRowOrColumn(currentIndex); currentIndex += increaseFactorForStart)
         {
-            for (int currentIndex{ (int)startIndex }; currentIndex <= (int)endIndex; currentIndex += increaseFactorForStart)
+            if (!m_board.GetPieceAtPosition(Position::FromIndexToPosition(m_size, currentIndex)).get())
             {
-                if (!m_board.GetPieceAtPosition(Position::FromIndexToPosition(m_size, currentIndex)).get())
-                {
-                    return currentIndex;
-                }
-            }
-        }
-        else
-        {
-            for (int currentIndex{ (int)startIndex }; currentIndex >= (int)endIndex; currentIndex += increaseFactorForStart)
-            {
-                if (!m_board.GetPieceAtPosition(Position::FromIndexToPosition(m_size, currentIndex)).get())
-                {
-                    return currentIndex;
-                }
+                return currentIndex;
             }
         }
         return INT_MAX;
-        };
+    };
 
 
     int indexOfEarliestEmptyPosition{ INT_MAX };
 
-    if (startIndex < endIndex)
+    for (int currentIndex{ (int)startIndex }; IsStillOnRowOrColumn(currentIndex); currentIndex += increaseFactorForStart)
     {
-        for (int currentIndex{ (int)startIndex }; currentIndex <= (int)endIndex; currentIndex += increaseFactorForStart)
+        //Check if current position is empty.
+        auto currentPositionPiece = m_board.GetPieceAtPosition(Position::FromIndexToPosition(m_size, currentIndex));
+        if (!currentPositionPiece)
         {
-            //Check if current position is empty.
-            auto currentPositionPiece = m_board.GetPieceAtPosition(Position::FromIndexToPosition(m_size, currentIndex));
-            if (!currentPositionPiece)
+            //If it is and indexOfEarliestEmptyPosition is INT_MAX, update it
+            if (indexOfEarliestEmptyPosition == INT_MAX)
             {
-                //If it is and indexOfEarliestEmptyPosition is INT_MAX, update it
-                if (indexOfEarliestEmptyPosition == INT_MAX)
-                {
-                    indexOfEarliestEmptyPosition = currentIndex;
-                }
-                continue;
+                indexOfEarliestEmptyPosition = currentIndex;
             }
+            continue;
+        }
 
-            //Means that there is a piece at current position.
+        //Means that there is a piece at current position.
 
-            //Check if there exists an empty space
-            if (indexOfEarliestEmptyPosition != INT_MAX)
-            {
-                m_board.SwapPiecesAtPositions(Position::FromIndexToPosition(m_size, currentIndex), Position::FromIndexToPosition(m_size, indexOfEarliestEmptyPosition));
+        //Check if there exists an empty space
+        if (indexOfEarliestEmptyPosition != INT_MAX)
+        {
+            m_board.SwapPiecesAtPositions(Position::FromIndexToPosition(m_size, currentIndex), Position::FromIndexToPosition(m_size, indexOfEarliestEmptyPosition));
 
-                //Check if there exists a previous piece
-                auto previousPosition{ indexOfEarliestEmptyPosition - increaseFactorForStart };
-
-                //Check for invalid position
-                if (previousPosition < startIndex || previousPosition > endIndex)
-                {
-                    indexOfEarliestEmptyPosition = GetEarliestEmptyPosition();
-                    continue;
-                }
-
-                //Check if they can combine
-                auto pieceAtPreviousLocation = m_board.GetPieceAtPosition(Position::FromIndexToPosition(m_size, previousPosition));
-                auto pieceAtCurrentLocation = m_board.GetPieceAtPosition(Position::FromIndexToPosition(m_size, indexOfEarliestEmptyPosition));
-                if (pieceAtPreviousLocation && pieceAtPreviousLocation->CanCombineWith(pieceAtCurrentLocation))
-                {
-                    auto newPiece = pieceAtPreviousLocation->CombinePieces(pieceAtCurrentLocation);
-                    m_board.ErasePiece(Position::FromIndexToPosition(m_size, indexOfEarliestEmptyPosition));
-                    //m_board.ErasePiece(Position::FromIndexToPosition(m_size, previousPosition));
-                    m_board.PlacePiece(Position::FromIndexToPosition(m_size, previousPosition), newPiece);
-                }
-                else
-                {
-                    //Update empty index
-                    indexOfEarliestEmptyPosition = GetEarliestEmptyPosition();
-                }
-                continue;
-            }
-
-            //If no empty space was found, means this piece is at the beginning or right next to another piece
-            
             //Check if there exists a previous piece
-            auto previousPosition{ currentIndex - increaseFactorForStart };
+            auto previousPosition{ indexOfEarliestEmptyPosition - increaseFactorForStart };
 
             //Check for invalid position
             if (previousPosition < startIndex || previousPosition > endIndex)
             {
+                indexOfEarliestEmptyPosition = GetEarliestEmptyPosition();
                 continue;
             }
 
             //Check if they can combine
             auto pieceAtPreviousLocation = m_board.GetPieceAtPosition(Position::FromIndexToPosition(m_size, previousPosition));
-            auto pieceAtCurrentLocation = m_board.GetPieceAtPosition(Position::FromIndexToPosition(m_size, currentIndex));
+            auto pieceAtCurrentLocation = m_board.GetPieceAtPosition(Position::FromIndexToPosition(m_size, indexOfEarliestEmptyPosition));
             if (pieceAtPreviousLocation && pieceAtPreviousLocation->CanCombineWith(pieceAtCurrentLocation))
             {
                 auto newPiece = pieceAtPreviousLocation->CombinePieces(pieceAtCurrentLocation);
-                m_board.ErasePiece(Position::FromIndexToPosition(m_size, currentIndex));
+                m_board.ErasePiece(Position::FromIndexToPosition(m_size, indexOfEarliestEmptyPosition));
                 //m_board.ErasePiece(Position::FromIndexToPosition(m_size, previousPosition));
                 m_board.PlacePiece(Position::FromIndexToPosition(m_size, previousPosition), newPiece);
-                indexOfEarliestEmptyPosition = currentIndex;
             }
+            else
+            {
+                //Update empty index
+                indexOfEarliestEmptyPosition = GetEarliestEmptyPosition();
+            }
+            continue;
         }
-    }
-    else
-    {
-        for (int currentIndex{ (int)startIndex }; currentIndex >= (int)endIndex; currentIndex += increaseFactorForStart)
+
+        //If no empty space was found, means this piece is at the beginning or right next to another piece
+
+        //Check if there exists a previous piece
+        auto previousPosition{ currentIndex - increaseFactorForStart };
+
+        //Check for invalid position
+        if (previousPosition < startIndex || previousPosition > endIndex)
         {
-            //Check if current position is empty.
-            auto currentPositionPiece = m_board.GetPieceAtPosition(Position::FromIndexToPosition(m_size, currentIndex));
-            if (!currentPositionPiece)
-            {
-                //If it is and indexOfEarliestEmptyPosition is INT_MAX, update it
-                if (indexOfEarliestEmptyPosition == INT_MAX)
-                {
-                    indexOfEarliestEmptyPosition = currentIndex;
-                }
-                continue;
-            }
+            continue;
+        }
 
-            //Means that there is a piece at current position.
-
-            //Check if there exists an empty space
-            if (indexOfEarliestEmptyPosition != INT_MAX)
-            {
-                m_board.SwapPiecesAtPositions(Position::FromIndexToPosition(m_size, currentIndex), Position::FromIndexToPosition(m_size, indexOfEarliestEmptyPosition));
-
-                //Check if there exists a previous piece
-                auto previousPosition{ indexOfEarliestEmptyPosition - increaseFactorForStart };
-
-                //Check for invalid position
-                if (previousPosition < startIndex || previousPosition > endIndex)
-                {
-                    indexOfEarliestEmptyPosition = GetEarliestEmptyPosition();
-                    continue;
-                }
-
-                //Check if they can combine
-                auto pieceAtPreviousLocation = m_board.GetPieceAtPosition(Position::FromIndexToPosition(m_size, previousPosition));
-                auto pieceAtCurrentLocation = m_board.GetPieceAtPosition(Position::FromIndexToPosition(m_size, indexOfEarliestEmptyPosition));
-                if (pieceAtPreviousLocation && pieceAtPreviousLocation->CanCombineWith(pieceAtCurrentLocation))
-                {
-                    auto newPiece = pieceAtPreviousLocation->CombinePieces(pieceAtCurrentLocation);
-                    m_board.ErasePiece(Position::FromIndexToPosition(m_size, indexOfEarliestEmptyPosition));
-                    //m_board.ErasePiece(Position::FromIndexToPosition(m_size, previousPosition));
-                    m_board.PlacePiece(Position::FromIndexToPosition(m_size, previousPosition), newPiece);
-                }
-                else
-                {
-                    //Update empty index
-                    indexOfEarliestEmptyPosition = GetEarliestEmptyPosition();
-                }
-                continue;
-            }
-
-            //If no empty space was found, means this piece is at the beginning or right next to another piece
-
-            //Check if there exists a previous piece
-            auto previousPosition{ currentIndex - increaseFactorForStart };
-
-            //Check for invalid position
-            if (previousPosition < startIndex || previousPosition > endIndex)
-            {
-                continue;
-            }
-
-            //Check if they can combine
-            auto pieceAtPreviousLocation = m_board.GetPieceAtPosition(Position::FromIndexToPosition(m_size, previousPosition));
-            auto pieceAtCurrentLocation = m_board.GetPieceAtPosition(Position::FromIndexToPosition(m_size, currentIndex));
-            if (pieceAtPreviousLocation && pieceAtPreviousLocation->CanCombineWith(pieceAtCurrentLocation))
-            {
-                auto newPiece = pieceAtPreviousLocation->CombinePieces(pieceAtCurrentLocation);
-                m_board.ErasePiece(Position::FromIndexToPosition(m_size, currentIndex));
-                //m_board.ErasePiece(Position::FromIndexToPosition(m_size, previousPosition));
-                m_board.PlacePiece(Position::FromIndexToPosition(m_size, previousPosition), newPiece);
-                indexOfEarliestEmptyPosition = currentIndex;
-            }
+        //Check if they can combine
+        auto pieceAtPreviousLocation = m_board.GetPieceAtPosition(Position::FromIndexToPosition(m_size, previousPosition));
+        auto pieceAtCurrentLocation = m_board.GetPieceAtPosition(Position::FromIndexToPosition(m_size, currentIndex));
+        if (pieceAtPreviousLocation && pieceAtPreviousLocation->CanCombineWith(pieceAtCurrentLocation))
+        {
+            auto newPiece = pieceAtPreviousLocation->CombinePieces(pieceAtCurrentLocation);
+            m_board.ErasePiece(Position::FromIndexToPosition(m_size, currentIndex));
+            //m_board.ErasePiece(Position::FromIndexToPosition(m_size, previousPosition));
+            m_board.PlacePiece(Position::FromIndexToPosition(m_size, previousPosition), newPiece);
+            indexOfEarliestEmptyPosition = currentIndex;
         }
     }
-
 }
 
 void game::Game::NotifyListenersForMoveDone() const
@@ -319,5 +232,10 @@ void game::Game::NotifyListenersForGameOver() const
 
 void game::Game::PlacePieceRandom()
 {
-    m_board.PlacePiece(m_board.GetRandomEmptyPosition(), std::make_shared<Piece>());
+    Position position{ m_board.GetRandomEmptyPosition() };
+    while (m_board.GetPieceAtPosition(position))
+    {
+        position = m_board.GetRandomEmptyPosition();
+    }
+    m_board.PlacePiece(position, std::make_shared<Piece>());
 }
