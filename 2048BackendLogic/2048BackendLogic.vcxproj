@@ -129,11 +129,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Board.cpp" />
+    <ClCompile Include="ConsoleGameListener.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Piece.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Board.h" />
+    <ClInclude Include="ConsoleGameListener.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="IBoard.h" />
     <ClInclude Include="IGame.h" />

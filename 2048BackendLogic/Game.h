@@ -21,6 +21,7 @@ namespace game
 
 	private:
 		void MoveRowOrColumnWithData(unsigned int startIndex, unsigned int endIndex, int increaseFactorForStart) override;
+		void PlacePieceRandom() override;
 
 		void NotifyListenersForMoveDone() const override;
 		void NotifyListenersForGameOver() const override;

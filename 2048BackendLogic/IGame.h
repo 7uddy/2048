@@ -19,5 +19,6 @@ namespace game
 
 	private:
 		virtual void MoveRowOrColumnWithData(unsigned int startIndex, unsigned int endIndex, int increaseFactorForStart) = 0;
+		virtual void PlacePieceRandom() = 0;
 	};
 }

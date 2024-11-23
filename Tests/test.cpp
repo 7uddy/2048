@@ -1,6 +1,8 @@
 ﻿#include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include "Game.h"
+
+#include <Game.h>
+#include <ConsoleGameListener.h>
 
 using namespace game;
 
@@ -40,6 +42,23 @@ TEST(GameTest, MoveTest)
     //game.SetBoard("2 0 0 \
     //               0 0 0 \
     //               0 0 0");
+
+    /*std::cout << '\n';
+    std::cout << game.GetBoard();
+    std::cout << '\n';
+
+    game.Move(Movement::UP);
+
+    std::cout << '\n';
+    std::cout << game.GetBoard();
+    std::cout << '\n';*/
+}
+
+TEST(ListenerTest, MovementDoneTest)
+{
+    Game game{ 4 };
+    std::shared_ptr<IGameListener> listener{ std::make_shared<ConsoleGameListener>() };
+    game.AddListener(listener);
 
     std::cout << '\n';
     std::cout << game.GetBoard();

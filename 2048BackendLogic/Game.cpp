@@ -2,8 +2,10 @@
 
 game::Game::Game(unsigned int sizeOfBoard) : m_board{ sizeOfBoard }
 {
-    m_board.PlacePiece(m_board.GetRandomEmptyPosition(), std::make_shared<Piece>());
-    m_board.PlacePiece(m_board.GetRandomEmptyPosition(), std::make_shared<Piece>());
+    for (int i = 0; i < 1; i++)
+    {
+        PlacePieceRandom();
+    }
 }
 
 void game::Game::Move(Movement direction)
@@ -64,15 +66,17 @@ void game::Game::Move(Movement direction)
         }
     }
 
+    PlacePieceRandom();
+
     //TO DO - TO BE IMPLEMENTED
-    /*if (CanStillMove())
+    if (/*CanStillMove()*/ true)
     {
         NotifyListenersForMoveDone();
     }
     else
     {
         NotifyListenersForGameOver();
-    }*/
+    }
 
 }
 
@@ -311,4 +315,9 @@ void game::Game::NotifyListenersForGameOver() const
             sp->OnGameOver();
         }
     }
+}
+
+void game::Game::PlacePieceRandom()
+{
+    m_board.PlacePiece(m_board.GetRandomEmptyPosition(), std::make_shared<Piece>());
 }
