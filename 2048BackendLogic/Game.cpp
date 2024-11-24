@@ -1,6 +1,6 @@
 #include "Game.h"
 
-game::Game::Game(unsigned int sizeOfBoard) : m_board{ sizeOfBoard }
+game::Game::Game(unsigned int sizeOfBoard) : m_board{ sizeOfBoard }, m_score{ 0u }
 {
     for (unsigned int i{ 0u }; i < std::min(2u, sizeOfBoard); ++i)
     {
@@ -18,7 +18,11 @@ void game::Game::ApplyMove(Movement direction)
 
     bool modificationWasMade{ false };
     for (unsigned int index{ 0 }; index < m_board.GetBoardSize(); ++index)
-        modificationWasMade = modificationWasMade || m_board.SquashColumn(index);
+    {
+        MoveResult result = m_board.SquashColumn(index);
+        modificationWasMade = modificationWasMade || result.modificationWasMade;
+        m_score += result.scoreGained;
+    }
 
     if (direction == Movement::UP || direction == Movement::LEFT)
         m_board.FlipVertically();
@@ -76,7 +80,6 @@ void game::Game::NotifyListenersForMoveDone() const
         {
             sp->OnMoveDone();
         }
-
     }
 }
 
@@ -89,6 +92,21 @@ void game::Game::NotifyListenersForGameOver() const
             sp->OnGameOver();
         }
     }
+}
+
+void game::Game::ResetGame()
+{
+    m_board.ResetBoard();
+    for (unsigned int i{ 0u }; i < std::min(2u, m_board.GetBoardSize()); ++i)
+    {
+        PlacePieceAtRandomPosition();
+    }
+    m_score = 0u;
+}
+
+unsigned int game::Game::GetScore() const
+{
+    return m_score;
 }
 
 void game::Game::PlacePieceAtRandomPosition()
@@ -106,25 +124,19 @@ void game::Game::PlacePieceAtRandomPosition()
 
 bool game::Game::IsGameOver()
 {
-
     std::string currentBoard{ m_board.GetBoard() };
 
-    ApplyMoveUtil(Movement::UP);
-    ApplyMoveUtil(Movement::DOWN);
-    ApplyMoveUtil(Movement::LEFT);
-    ApplyMoveUtil(Movement::RIGHT);
-
-    std::string newBoard{ m_board.GetBoard() };
-
-    if (currentBoard != newBoard)
+    //Check if any modification was made when applying a move
+    if (ApplyMoveUtil(Movement::UP) || ApplyMoveUtil(Movement::DOWN) || ApplyMoveUtil(Movement::LEFT) || ApplyMoveUtil(Movement::RIGHT))
     {
         m_board.SetBoard(currentBoard);
         return false;
     }
+
     return true;
 }
 
-void game::Game::ApplyMoveUtil(Movement direction)
+bool game::Game::ApplyMoveUtil(Movement direction)
 {
     if (direction == Movement::LEFT || direction == Movement::RIGHT)
         m_board.FlipDiagonally();
@@ -132,12 +144,10 @@ void game::Game::ApplyMoveUtil(Movement direction)
     if (direction == Movement::UP || direction == Movement::LEFT)
         m_board.FlipVertically();
 
-    bool modificationWasMade{ false };
     for (unsigned int index{ 0 }; index < m_board.GetBoardSize(); ++index)
     {
-        modificationWasMade = modificationWasMade || m_board.SquashColumn(index);
-        if (modificationWasMade)
-            return;
+        if (m_board.SquashColumn(index).modificationWasMade)
+            return true;
     }
 
     if (direction == Movement::UP || direction == Movement::LEFT)
@@ -145,4 +155,6 @@ void game::Game::ApplyMoveUtil(Movement direction)
 
     if (direction == Movement::LEFT || direction == Movement::RIGHT)
         m_board.FlipDiagonally();
+
+    return false;
 }

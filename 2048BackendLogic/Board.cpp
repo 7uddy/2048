@@ -73,9 +73,9 @@ unsigned int game::Board::GetBoardSize() const
     return m_size;
 }
 
-bool game::Board::SquashColumn(unsigned int columnIndex)
+MoveResult game::Board::SquashColumn(unsigned int columnIndex)
 {
-    bool modificationWasMade{ false };
+    MoveResult result{ 0u, false };
     for (int destinationIndex{ (int)m_size - 1 }; destinationIndex >= 0; --destinationIndex)
     {
         int sourceIndex{ destinationIndex - 1 };
@@ -89,17 +89,18 @@ bool game::Board::SquashColumn(unsigned int columnIndex)
         {
             PlacePiece(Position{ (unsigned int)destinationIndex, columnIndex }, m_board[sourceIndex][columnIndex]->CombinePieces(m_board[destinationIndex][columnIndex]));
             ErasePiece(Position{ (unsigned int)sourceIndex, columnIndex });
-            modificationWasMade = true;
+            result.scoreGained += GetPieceAtPosition(Position{ (unsigned int)destinationIndex, columnIndex })->GetValue();
+            result.modificationWasMade = true;
         }
 
         if (!m_board[destinationIndex][columnIndex])
         {
             SwapPiecesAtPositions(Position{ (unsigned int)destinationIndex, columnIndex }, Position{ (unsigned int)sourceIndex, columnIndex });
-            ++destinationIndex;
-            modificationWasMade = true;
+            ++destinationIndex;            
+            result.modificationWasMade = true;
         }
     }
-    return modificationWasMade;
+    return result;
 }
 
 void game::Board::FlipVertically()

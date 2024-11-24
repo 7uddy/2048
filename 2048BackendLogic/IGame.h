@@ -12,8 +12,12 @@ namespace game
 
 		virtual bool IsGameOver() = 0;
 
+		virtual void ResetGame() = 0;
+
 		virtual void SetBoard(const std::string& board) = 0;
 		virtual std::string GetBoard() const = 0;
+
+		virtual unsigned int GetScore() const = 0;
 
 		virtual void AddListener(IGameListenerPtr observer) = 0;
 		virtual void RemoveListener(IGameListener* observer) = 0;
@@ -24,6 +28,6 @@ namespace game
 		virtual void NotifyListenersForMoveDone() const = 0;
 		virtual void NotifyListenersForGameOver() const = 0;
 
-		virtual void ApplyMoveUtil(Movement position) = 0;
+		virtual bool ApplyMoveUtil(Movement position) = 0;
 	};
 }

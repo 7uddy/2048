@@ -31,7 +31,7 @@ namespace game
 		unsigned int GetBoardSize() const override;
 
 		//Functions related to movement
-		bool SquashColumn(unsigned int columIndex) override;
+		MoveResult SquashColumn(unsigned int columIndex) override;
 		void FlipVertically() override;
 		void FlipDiagonally() override;
 

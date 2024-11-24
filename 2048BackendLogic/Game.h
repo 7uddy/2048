@@ -15,6 +15,10 @@ namespace game
 
 		bool IsGameOver() override;
 
+		void ResetGame() override;
+
+		unsigned int GetScore() const override;
+
 		void SetBoard(const std::string& board) override;
 		std::string GetBoard() const override;
 
@@ -23,7 +27,7 @@ namespace game
 
 	private:
 		void PlacePieceAtRandomPosition() override;
-		void ApplyMoveUtil(Movement position) override;
+		bool ApplyMoveUtil(Movement position) override;
 
 		void NotifyListenersForMoveDone() const override;
 		void NotifyListenersForGameOver() const override;
@@ -31,6 +35,6 @@ namespace game
 	private:
 		Board m_board;
 		std::vector<IGameListenerWeakPtr> m_observers;
-
+		unsigned int m_score;
 	};
 }
