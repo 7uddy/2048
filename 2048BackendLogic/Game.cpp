@@ -2,7 +2,7 @@
 
 game::Game::Game(unsigned int sizeOfBoard) : m_board{ sizeOfBoard }, m_score{ 0u }
 {
-    for (unsigned int i{ 0u }; i < std::min(2u, sizeOfBoard); ++i)
+    while(m_board.GetNumberOfPiecesOnBoard() < 2u)
     {
         PlacePieceAtRandomPosition();
     }
@@ -97,7 +97,7 @@ void game::Game::NotifyListenersForGameOver() const
 void game::Game::ResetGame()
 {
     m_board.ResetBoard();
-    for (unsigned int i{ 0u }; i < std::min(2u, m_board.GetBoardSize()); ++i)
+    while (m_board.GetNumberOfPiecesOnBoard() < 2u)
     {
         PlacePieceAtRandomPosition();
     }

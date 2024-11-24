@@ -47,36 +47,19 @@ TEST(GameTest, MoveTest)
 {
     Game game{ 3 };
 
-    game.SetBoard("2 2 0 \
-                   0 0 0 \
-                   0 0 0");
+    game.SetBoard("0 0 0\
+                   0 2 2\
+                   0 2 2");
 
     std::cout << '\n';
     std::cout << game.GetBoard();
     std::cout << '\n';
 
-    game.ApplyMove(Movement::UP);
+    game.ApplyMove(Movement::RIGHT);
 
     std::cout << '\n';
     std::cout << game.GetBoard();
     std::cout << '\n';
-
-    game.ApplyMove(Movement::LEFT); 
-    
-    std::cout << '\n';
-    std::cout << game.GetBoard();
-    std::cout << '\n';
-
-    game.ApplyMove(Movement::UP); 
-    
-    std::cout << '\n';
-    std::cout << game.GetBoard();
-    std::cout << '\n';
-
-    game.ApplyMove(Movement::UP);
-
-
-
 }
 
 TEST(ListenerTest, MovementDoneTest)

@@ -138,6 +138,11 @@ bool game::Board::IsPositionValid(Position position) const
     return true;
 }
 
+unsigned int game::Board::GetNumberOfPiecesOnBoard() const
+{
+    return m_numberOfPiecesOnBoard;
+}
+
 void game::Board::SwapPiecesAtPositions(Position position1, Position position2)
 {
     if (!IsPositionValid(position1) || !IsPositionValid(position2))
@@ -180,28 +185,42 @@ std::string game::Board::GetBoard() const
 void game::Board::SetBoard(const std::string& board)
 {
     ResetBoard();
-    std::istringstream stream(board);
-    unsigned int currentRowIndex{ 0u }, currentColumnIndex{ 0u };
-    int number{ 0 };
-    try
-    {
-        while (stream >> number && currentRowIndex < m_size)
-        {
-            if (number == 0)
-            {
-                currentColumnIndex++;
-                if (currentColumnIndex == m_size)
-                {
-                    currentRowIndex++;
-                    currentColumnIndex = 0u;
-                }
-                continue;
+
+    auto extractNumbers = [](const std::string& text) {
+        std::vector<int> extractedNumbers;
+        std::string currentNumber;
+
+        for (size_t i{ 0u }; i < text.size(); ++i) {
+            if (std::isdigit(text[i]) || (text[i] == '-' && i + 1 < text.size() && std::isdigit(text[i + 1]))) {
+                currentNumber += text[i];
             }
-            PlacePiece(Position{ currentRowIndex, currentColumnIndex++ }, std::make_shared<Piece>(number));
+            else if (currentNumber.length() > 0u) {
+                extractedNumbers.emplace_back(std::stoi(currentNumber));
+                currentNumber.clear();
+            }
         }
-    }
-    catch (...)
+
+        if (currentNumber.length() > 0) {
+            extractedNumbers.emplace_back(std::stoi(currentNumber));
+        }
+
+        return extractedNumbers;
+        };
+
+    std::vector<int> numbers{ extractNumbers(board) };
+
+    if ((unsigned int)numbers.size() != m_size * m_size)
+        return;
+
+    unsigned int currentIndex{ 0u };
+    for (const auto& number : numbers)
     {
-        ResetBoard();
+        if (number == 0)
+        {
+            currentIndex++;
+            continue;
+        }
+        PlacePiece(Position{ currentIndex / m_size, currentIndex % m_size}, std::make_shared<Piece>(number));
+        currentIndex++;
     }
 }

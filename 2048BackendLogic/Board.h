@@ -29,6 +29,7 @@ namespace game
 		//Functions related to board data
 		bool IsBoardFull() const override;
 		unsigned int GetBoardSize() const override;
+		unsigned int GetNumberOfPiecesOnBoard() const override;
 
 		//Functions related to movement
 		MoveResult SquashColumn(unsigned int columIndex) override;
@@ -42,6 +43,5 @@ namespace game
 		std::vector<std::vector<std::shared_ptr<IPiece>>> m_board;
 		unsigned int m_size;
 		unsigned int m_numberOfPiecesOnBoard;
-
 	};
 }
