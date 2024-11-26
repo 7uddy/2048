@@ -13,6 +13,9 @@ MainWindow::MainWindow(QWidget* parent)
     this->setMaximumSize(1000, 600);
     centralWidget->setLayout(boardLayout);
 
+    gameLogic->SetBoard("2 2 4 2\n4 8 2 4\n2 4 2 2\n2 2 2 2");
+
+    this->initializeGameBoard();
 
     // Menu bar setup
     QMenu* gameMenu = menuBar()->addMenu(tr("&Game"));
@@ -28,15 +31,35 @@ MainWindow::~MainWindow()
     delete boardLayout;
 }
 
+void MainWindow::initializeGameBoard()
+{
+    std::string boardString = this->gameLogic->GetBoard();
+    std::istringstream stream(boardString);
+    std::string token;
+
+    int row = 0, column = 0;
+
+    while (stream >> token)
+    {
+        QLabel* tile = new QLabel();
+        QString text = QString::fromUtf8(token.c_str());
+        tile->setText(text);
+
+        this->boardLayout->addWidget(tile,row,column);
+        column++;
+        if (column == 4)
+        {
+            column = 0;
+            row++;
+        }
+    }
+}
+
 void MainWindow::keyPressEvent(QKeyEvent* event)
 {
 
 }
 
-void MainWindow::initializeGameBoard()
-{
-
-}
 
 void MainWindow::updateGameBoard()
 {
