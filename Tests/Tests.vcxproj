@@ -108,6 +108,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="MockGameListener.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>

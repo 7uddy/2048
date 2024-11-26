@@ -3,6 +3,7 @@
 
 #include <Game.h>
 #include <ConsoleGameListener.h>
+#include "MockGameListener.h"
 
 using namespace game;
 
@@ -212,47 +213,129 @@ TEST(BoardTest, FlipDiagonallyTest)
     EXPECT_EQ(flippedBoard, expectedFlippedBoard);
 }
 
+TEST(GameTest, ResetGameTest)
+{
+    Game game(4);  
 
+    std::string initialBoard =
+        "1 0 0 0 \n"
+        "0 2 0 0 \n"
+        "0 0 4 0 \n"
+        "0 0 0 8 \n";
+    game.SetBoard(initialBoard);
 
+    game.ResetGame();
+    EXPECT_NE(game.GetBoard(),initialBoard);
+    EXPECT_EQ(game.GetScore(), 0);
+}
 
+TEST(GameTest, ResetScoreTest)
+{
+    Game game(4);
+    game.SetBoard(
+        "2 2 0 0 \n"
+        "0 0 0 0 \n"
+        "0 0 0 0 \n"
+        "0 0 0 0 \n"
+    );
 
+    game.ApplyMove(Movement::LEFT);
+    EXPECT_GT(game.GetScore(), 0);
 
+    game.ResetGame();
 
-//TEST(GameTest, MoveTest)
-//{
-//    Game game{ 3 };
-//
-//    game.SetBoard("0 0 0\
-//                   0 2 2\
-//                   0 2 2");
-//
-//    std::cout << '\n';
-//    std::cout << game.GetBoard();
-//    std::cout << '\n';
-//
-//    game.ApplyMove(Movement::RIGHT);
-//
-//    std::cout << '\n';
-//    std::cout << game.GetBoard();
-//    std::cout << '\n';
-//}
-//
-//TEST(ListenerTest, MovementDoneTest)
-//{
-//    /*Game game{ 4 };
-//    std::shared_ptr<IGameListener> listener{ std::make_shared<ConsoleGameListener>() };
-//    game.AddListener(listener);
-//
-//    std::cout << '\n';
-//    std::cout << game.GetBoard();
-//    std::cout << '\n';
-//
-//    game.ApplyMove(Movement::UP);
-//
-//    std::cout << '\n';
-//    std::cout << game.GetBoard();
-//    std::cout << '\n';*/
-//}
+    EXPECT_EQ(game.GetScore(), 0);
+}
+
+TEST(GameTest, ApplyMoveTest)
+{
+    Game game(4);
+
+    game.SetBoard(
+        "2 0 2 0 \n"
+        "4 4 0 0 \n"
+        "0 0 0 0 \n"
+        "0 0 0 0 \n"
+    );
+
+    game.ApplyMove(Movement::RIGHT);
+
+    ASSERT_EQ(game.GetBoardObject().GetPieceAtPosition(Position{0,3})->GetValue(), 4) << "Error at left/right movement";
+    ASSERT_EQ(game.GetBoardObject().GetPieceAtPosition(Position{ 1,3 })->GetValue(), 8) << "Error at left/right movement";
+
+    EXPECT_EQ(game.GetScore(), 12);
+    
+    game.SetBoard(
+        "2 0 2 0 \n"
+        "2 4 0 0 \n"
+        "0 0 0 0 \n"
+        "0 0 0 0 \n"
+    );
+    game.ApplyMove(Movement::DOWN);
+    
+    ASSERT_EQ(game.GetBoardObject().GetPieceAtPosition(Position{ 3,0 })->GetValue(), 4) << "Error at up/down movement";
+    ASSERT_EQ(game.GetBoardObject().GetPieceAtPosition(Position{ 3,1 })->GetValue(), 4) << "Error at up/down movement";
+    ASSERT_EQ(game.GetBoardObject().GetPieceAtPosition(Position{ 3,2 })->GetValue(), 2) << "Error at up/down movement";
+}
+
+TEST(GameTest, GameOverTest)
+{
+    Game game(4);
+
+    game.SetBoard(
+        "2 4 8 16 \n"
+        "4 8 16 32 \n"
+        "8 16 32 64 \n"
+        "16 32 64 128 \n"
+    );
+
+    EXPECT_TRUE(game.IsGameOver());
+}
+
+TEST(GameTest, OnMoveDoneListenerTest)
+{
+    Game game(4);
+
+    auto listener = std::make_shared<MockGameListener>();
+
+    game.AddListener(listener);
+
+    EXPECT_CALL(*listener, OnMoveDone()).Times(3);
+    EXPECT_CALL(*listener, OnGameOver()).Times(1);
+
+    game.NotifyListenersForMoveDone();
+    game.ApplyMove(Movement::LEFT);
+
+    game.SetBoard(
+        "2 4 8 16 \n"
+        "4 8 16 32 \n"
+        "8 16 32 64 \n"
+        "16 32 64 128 \n"
+    );
+
+    game.ApplyMove(Movement::LEFT);
+
+    game.RemoveListener(listener.get());
+    game.NotifyListenersForMoveDone();
+    game.NotifyListenersForGameOver();
+}
+
+TEST(GameTest, NotifyListenersTest)
+{
+    Game game(4);
+
+    auto listener = std::make_shared<MockGameListener>();
+
+    game.AddListener(listener);
+
+    EXPECT_CALL(*listener, OnGameOver()).Times(1);
+
+    game.NotifyListenersForGameOver();
+
+    game.RemoveListener(listener.get());
+
+    game.NotifyListenersForGameOver();
+}
 
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);

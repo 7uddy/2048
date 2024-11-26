@@ -21,16 +21,17 @@ namespace game
 
 		void SetBoard(const std::string& board) override;
 		std::string GetBoard() const override;
+		Board GetBoardObject() const noexcept;
 
 		void AddListener(IGameListenerPtr observer) override;
 		void RemoveListener(IGameListener* observer) override;
 
+		void NotifyListenersForMoveDone() const override;
+		void NotifyListenersForGameOver() const override;
+
 	private:
 		void PlacePieceAtRandomPosition() override;
 		bool ApplyMoveUtil(Movement position) override;
-
-		void NotifyListenersForMoveDone() const override;
-		void NotifyListenersForGameOver() const override;
 
 	private:
 		Board m_board;

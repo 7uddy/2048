@@ -51,6 +51,11 @@ std::string game::Game::GetBoard() const
 	return m_board.GetBoard();
 }
 
+game::Board game::Game::GetBoardObject() const noexcept
+{
+	return m_board;
+}
+
 void game::Game::AddListener(IGameListenerPtr observer)
 {
     m_observers.emplace_back(observer);
