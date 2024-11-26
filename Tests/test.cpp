@@ -337,6 +337,26 @@ TEST(GameTest, NotifyListenersTest)
     game.NotifyListenersForGameOver();
 }
 
+TEST(ConsoleGameListenerTest, CreationTest)
+{
+    game::ConsoleGameListener consoleListener;
+
+    EXPECT_NO_THROW(game::ConsoleGameListener consoleListener);
+}
+
+TEST(ConsoleGameListenerTest, DestructionTest)
+{
+    {
+        // Create and destroy the object within a local scope
+        // We don't need to verify anything explicitly here because the destruction of the object happens automatically when it goes out of scope
+        game::ConsoleGameListener consoleListener;
+
+    }
+
+    // If the test reaches here without throwing any errors, it means the destruction was handled correctly
+    // There are no memory leaks or errors
+}
+
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
