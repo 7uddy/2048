@@ -91,13 +91,13 @@ TEST(BoardTest, ErasePieceTest)
     ASSERT_EQ(board.GetPieceAtPosition(pos), nullptr);
 }
 
-//TEST(BoardTest, GetRandomEmptyPositionTest)
-//{
-//    game::Board board(4);
-//    auto emptyPos = board.GetRandomEmptyPosition();
-//    ASSERT_TRUE(board.IsPositionValid(emptyPos));
-//    ASSERT_EQ(board.GetPieceAtPosition(emptyPos), nullptr);
-//}
+TEST(BoardTest, GetRandomEmptyPositionTest)
+{
+    game::Board board(4);
+    auto emptyPos = board.GetRandomEmptyPosition();
+    ASSERT_TRUE(board.IsPositionValid(emptyPos));
+    ASSERT_EQ(board.GetPieceAtPosition(emptyPos), nullptr);
+}
 
 TEST(BoardTest, IsBoardFullTest)
 {
