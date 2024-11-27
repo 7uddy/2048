@@ -337,6 +337,23 @@ TEST(GameTest, NotifyListenersTest)
     game.NotifyListenersForGameOver();
 }
 
+TEST(GameTest, ResetListenerTest)
+{
+    Game game(4);
+
+    auto listener = std::make_shared<MockGameListener>();
+
+    game.AddListener(listener);
+
+    EXPECT_CALL(*listener, OnGameOver()).Times(1);
+
+    game.NotifyListenersForGameOver();
+
+    listener.reset();
+
+    game.NotifyListenersForGameOver();
+}
+
 TEST(ConsoleGameListenerTest, CreationTest)
 {
     game::ConsoleGameListener consoleListener;
