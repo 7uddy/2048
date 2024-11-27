@@ -23,7 +23,7 @@ namespace game
 		std::string GetBoard() const override;
 		Board GetBoardObject() const noexcept;
 
-		void AddListener(IGameListenerPtr observer) override;
+		void AddListener(IGameListener* observer) override;
 		void RemoveListener(IGameListener* observer) override;
 
 		void NotifyListenersForMoveDone() const override;
@@ -36,7 +36,7 @@ namespace game
 
 	private:
 		Board m_board;
-		std::vector<IGameListenerWeakPtr> m_observers;
+		std::vector<IGameListener*> m_observers;
 		unsigned int m_score;
 	};
 }

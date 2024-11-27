@@ -53,14 +53,14 @@ game::Board game::Game::GetBoardObject() const noexcept
 	return m_board;
 }
 
-void game::Game::AddListener(IGameListenerPtr observer)
+void game::Game::AddListener(IGameListener* observer)
 {
     m_observers.emplace_back(observer);
 }
 
 void game::Game::RemoveListener(IGameListener* observer)
 {
-	for (auto it = m_observers.begin(); it != m_observers.end(); )
+	/*for (auto it = m_observers.begin(); it != m_observers.end(); )
 	{
 		if (auto sp = it->lock())
 		{
@@ -71,17 +71,18 @@ void game::Game::RemoveListener(IGameListener* observer)
 		}
 		else
 			it = m_observers.erase(it);
-	}
+	}*/
 }
 
 void game::Game::NotifyListenersForMoveDone() const
 {
     for (auto& listener : m_observers)
     {
-        if (auto sp = listener.lock())
+        /*if (auto sp = listener.lock())
         {
             sp->OnMoveDone();
-        }
+        }*/
+        listener->OnMoveDone();
     }
 }
 
@@ -89,10 +90,11 @@ void game::Game::NotifyListenersForGameOver() const
 {
     for (auto& listener : m_observers)
     {
-        if (auto sp = listener.lock())
+        /*if (auto sp = listener.lock())
         {
             sp->OnGameOver();
-        }
+        }*/
+        listener->OnGameOver();
     }
 }
 

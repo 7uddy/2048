@@ -19,7 +19,7 @@ namespace game
 
 		virtual unsigned int GetScore() const = 0;
 
-		virtual void AddListener(IGameListenerPtr observer) = 0;
+		virtual void AddListener(IGameListener* observer) = 0;
 		virtual void RemoveListener(IGameListener* observer) = 0;
 
 	private:

@@ -3,6 +3,7 @@
 #include <QKeyEvent>
 #include <QLabel>
 #include "Game.h"
+#include "GameListener.h"
 
 class MainWindow : public QMainWindow
 {
@@ -20,8 +21,9 @@ private:
     QGridLayout* boardLayout;
     QLabel* boardTiles[4][4];
     game::Game* gameLogic;
+    GameListener* listener;
 
-
+    bool hasChildren();
     void initializeGameBoard();
     void updateGameBoard();
 };

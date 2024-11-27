@@ -11,4 +11,3 @@ namespace game
 		void OnGameOver() override;
 	};
 }
-
