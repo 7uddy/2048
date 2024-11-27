@@ -2,10 +2,7 @@
 
 game::Game::Game(unsigned int sizeOfBoard) : m_board{ sizeOfBoard }, m_score{ 0u }
 {
-    while(m_board.GetNumberOfPiecesOnBoard() < 2u)
-    {
-        PlacePieceAtRandomPosition();
-    }
+    InitializeRandomPieces();
 }
 
 void game::Game::ApplyMove(Movement direction)
@@ -102,16 +99,21 @@ void game::Game::NotifyListenersForGameOver() const
 void game::Game::ResetGame()
 {
     m_board.ResetBoard();
-    while (m_board.GetNumberOfPiecesOnBoard() < 2u)
-    {
-        PlacePieceAtRandomPosition();
-    }
+    InitializeRandomPieces();
     m_score = 0u;
 }
 
 unsigned int game::Game::GetScore() const
 {
     return m_score;
+}
+
+void game::Game::InitializeRandomPieces()
+{
+    while (m_board.GetNumberOfPiecesOnBoard() < 2u)
+    {
+        PlacePieceAtRandomPosition();
+    }
 }
 
 void game::Game::PlacePieceAtRandomPosition()

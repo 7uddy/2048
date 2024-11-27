@@ -23,7 +23,9 @@ namespace game
 		virtual void RemoveListener(IGameListener* observer) = 0;
 
 	private:
+		virtual void InitializeRandomPieces() = 0;
 		virtual void PlacePieceAtRandomPosition() = 0;
+
 
 		virtual void NotifyListenersForMoveDone() const = 0;
 		virtual void NotifyListenersForGameOver() const = 0;

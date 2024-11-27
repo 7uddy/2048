@@ -30,6 +30,7 @@ namespace game
 		void NotifyListenersForGameOver() const override;
 
 	private:
+		void InitializeRandomPieces() override;
 		void PlacePieceAtRandomPosition() override;
 		bool ApplyMoveUtil(Movement position) override;
 
