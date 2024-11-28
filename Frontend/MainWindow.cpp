@@ -7,7 +7,7 @@ MainWindow::MainWindow(QWidget* parent)
     centralWidget(new QWidget(this)),
     boardLayout(new QGridLayout),
     gameLogic(new game::Game(4)),
-    listener(new GameListener)
+    listener(std::make_shared<GameListener>())
 {
     setCentralWidget(centralWidget);
     this->setMinimumSize(600, 400);
@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget* parent)
 
 
 
+    this->gameLogic->AddListener(listener);
     this->initializeGameBoard();
 
     // Menu bar setup
@@ -23,9 +24,8 @@ MainWindow::MainWindow(QWidget* parent)
     QAction* resetAction = gameMenu->addAction(tr("&Reset"));
     QAction* exitAction = gameMenu->addAction(tr("&Exit"));
 
-    connect(listener, &GameListener::notifyMoveDone, this, [this]() {updateGameBoard(); });
+    connect(listener.get(), &GameListener::notifyMoveDone, this, [this]() {updateGameBoard(); });
 
-    this->gameLogic->AddListener(listener);
     
     connect(resetAction, &QAction::triggered, this, &MainWindow::initializeGameBoard);
     connect(exitAction, &QAction::triggered, this, &MainWindow::close);

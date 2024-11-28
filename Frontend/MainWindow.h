@@ -2,8 +2,8 @@
 #include <QGridLayout>
 #include <QKeyEvent>
 #include <QLabel>
-#include "Game.h"
 #include "GameListener.h"
+#include "Game.h"
 
 class MainWindow : public QMainWindow
 {
@@ -21,7 +21,7 @@ private:
     QGridLayout* boardLayout;
     QLabel* boardTiles[4][4];
     game::Game* gameLogic;
-    GameListener* listener;
+    std::shared_ptr<GameListener> listener;
 
     bool hasChildren();
     void initializeGameBoard();
