@@ -2,6 +2,7 @@
 #include <QGridLayout>
 #include <QKeyEvent>
 #include <QLabel>
+#include <QRegularExpression>
 #include "GameListener.h"
 #include "Game.h"
 
@@ -23,7 +24,8 @@ private:
     game::Game* gameLogic;
     std::shared_ptr<GameListener> listener;
 
-    bool hasChildren();
+    void updateTileColor(QLabel*,const QString&);
+    QString generateColor(int);
     void initializeGameBoard();
     void updateGameBoard();
 };
