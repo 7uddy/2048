@@ -9,5 +9,6 @@ namespace game
 	public:
 		void OnMoveDone() override;
 		void OnGameOver() override;
+		void OnGameReset() override;
 	};
 }

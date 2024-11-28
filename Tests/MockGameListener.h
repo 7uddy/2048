@@ -10,5 +10,6 @@ namespace game
     public:
         MOCK_METHOD(void, OnMoveDone, (), (override));
         MOCK_METHOD(void, OnGameOver, (), (override));
+        MOCK_METHOD(void, OnGameReset, (), (override));
     };
 }

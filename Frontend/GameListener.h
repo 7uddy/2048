@@ -8,7 +8,9 @@ public:
 	// Inherited via IGameListener
 	void OnMoveDone() override;
 	void OnGameOver() override;
+	void OnGameReset() override;
 signals:
 	void notifyMoveDone();
 	void notifyGameOver();
+	void notifyGameReset();
 };

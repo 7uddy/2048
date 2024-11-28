@@ -300,10 +300,9 @@ TEST(GameTest, OnMoveDoneListenerTest)
 
     game.AddListener(listener);
 
-    EXPECT_CALL(*listener, OnMoveDone()).Times(3);
+    EXPECT_CALL(*listener, OnMoveDone()).Times(2);
     EXPECT_CALL(*listener, OnGameOver()).Times(1);
 
-    game.NotifyListenersForMoveDone();
     game.ApplyMove(Movement::LEFT);
 
     game.SetBoard(
@@ -316,8 +315,10 @@ TEST(GameTest, OnMoveDoneListenerTest)
     game.ApplyMove(Movement::LEFT);
 
     game.RemoveListener(listener.get());
-    game.NotifyListenersForMoveDone();
-    game.NotifyListenersForGameOver();
+
+
+    EXPECT_CALL(*listener, OnGameOver()).Times(0);
+    game.ApplyMove(Movement::LEFT);
 }
 
 TEST(GameTest, NotifyListenersTest)
@@ -328,13 +329,13 @@ TEST(GameTest, NotifyListenersTest)
 
     game.AddListener(listener);
 
-    EXPECT_CALL(*listener, OnGameOver()).Times(1);
+    //EXPECT_CALL(*listener, OnGameOver()).Times(1);
 
-    game.NotifyListenersForGameOver();
+    //game.NotifyListenersForGameOver();
 
     game.RemoveListener(listener.get());
 
-    game.NotifyListenersForGameOver();
+    //game.NotifyListenersForGameOver();
 }
 
 TEST(GameTest, ResetListenerTest)
@@ -345,13 +346,20 @@ TEST(GameTest, ResetListenerTest)
 
     game.AddListener(listener);
 
-    EXPECT_CALL(*listener, OnGameOver()).Times(1);
+    game.SetBoard(
+        "2 4 8 16 \n"
+        "4 8 16 32 \n"
+        "8 16 32 64 \n"
+        "16 32 64 128 \n"
+    );
 
-    game.NotifyListenersForGameOver();
+    EXPECT_CALL(*listener, OnMoveDone()).Times(1);
+    EXPECT_CALL(*listener, OnGameOver()).Times(1);
+    game.ApplyMove(Movement::LEFT);
 
     listener.reset();
 
-    game.NotifyListenersForGameOver();
+    game.ApplyMove(Movement::LEFT);
 }
 
 TEST(ConsoleGameListenerTest, CreationTest)

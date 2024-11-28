@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget* parent)
     QAction* exitAction = gameMenu->addAction(tr("&Exit"));
 
     connect(listener.get(), &GameListener::notifyMoveDone, this, [this]() {updateGameBoard(); });
+    connect(listener.get(), &GameListener::notifyGameReset, this, [this]() {updateGameBoard(); });
 
     
     connect(resetAction, &QAction::triggered, this, &MainWindow::initializeGameBoard);

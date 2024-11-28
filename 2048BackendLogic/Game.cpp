@@ -96,11 +96,24 @@ void game::Game::NotifyListenersForGameOver() const
     }
 }
 
+void game::Game::NotifyListenersForGameReset() const
+{
+    for (auto& listener : m_observers)
+    {
+        if (auto sp = listener.lock())
+        {
+            sp->OnGameReset();
+        }
+    }
+}
+
+
 void game::Game::ResetGame()
 {
     m_board.ResetBoard();
     InitializeRandomPieces();
     m_score = 0u;
+    NotifyListenersForGameReset();
 }
 
 unsigned int game::Game::GetScore() const

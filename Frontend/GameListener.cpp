@@ -9,3 +9,8 @@ void GameListener::OnGameOver()
 {
 	emit notifyGameOver();
 }
+
+void GameListener::OnGameReset()
+{
+	emit notifyGameReset();
+}

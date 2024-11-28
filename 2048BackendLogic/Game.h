@@ -26,17 +26,22 @@ namespace game
 		void AddListener(std::shared_ptr<IGameListener> observer) override;
 		void RemoveListener(IGameListener* observer) override;
 
-		void NotifyListenersForMoveDone() const override;
-		void NotifyListenersForGameOver() const override;
 
 	private:
 		void InitializeRandomPieces() override;
 		void PlacePieceAtRandomPosition() override;
 		bool ApplyMoveUtil(Movement position) override;
 
+
+		void NotifyListenersForMoveDone() const override;
+		void NotifyListenersForGameOver() const override;
+		void NotifyListenersForGameReset() const override;
+
 	private:
 		Board m_board;
 		std::vector<std::weak_ptr<IGameListener>> m_observers;
 		unsigned int m_score;
+
+		// Inherited via IGame
 	};
 }
