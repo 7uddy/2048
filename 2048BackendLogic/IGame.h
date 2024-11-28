@@ -18,6 +18,7 @@ namespace game
 		virtual std::string GetBoard() const = 0;
 
 		virtual unsigned int GetScore() const = 0;
+		virtual unsigned int GetMaxScore() const = 0;
 
 		virtual void AddListener(std::shared_ptr<IGameListener> observer) = 0;
 		virtual void RemoveListener(IGameListener* observer) = 0;
@@ -25,7 +26,7 @@ namespace game
 	private:
 		virtual void InitializeRandomPieces() = 0;
 		virtual void PlacePieceAtRandomPosition() = 0;
-
+		virtual void UpdateMaxScore() = 0;
 
 		virtual void NotifyListenersForMoveDone() const = 0;
 		virtual void NotifyListenersForGameOver() const = 0;

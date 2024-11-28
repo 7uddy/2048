@@ -1,6 +1,6 @@
 #include "Game.h"
 
-game::Game::Game(unsigned int sizeOfBoard) : m_board{ sizeOfBoard }, m_score{ 0u }
+game::Game::Game(unsigned int sizeOfBoard) : m_board{ sizeOfBoard }, m_score{ 0u }, m_maxScore{ 0u }
 {
     InitializeRandomPieces();
 }
@@ -26,6 +26,8 @@ void game::Game::ApplyMove(Movement direction)
 
     if (direction == Movement::LEFT || direction == Movement::RIGHT)
         m_board.FlipDiagonally();
+
+    UpdateMaxScore();
 
     if (modificationWasMade)
         PlacePieceAtRandomPosition();
@@ -107,12 +109,22 @@ void game::Game::NotifyListenersForGameReset() const
     }
 }
 
+unsigned int game::Game::GetMaxScore() const
+{
+    return m_maxScore;
+}
+
+void game::Game::UpdateMaxScore()
+{
+    m_maxScore = std::max(m_maxScore, m_score);
+}
+
 
 void game::Game::ResetGame()
 {
     m_board.ResetBoard();
     InitializeRandomPieces();
-    m_score = 0u;
+    m_maxScore = m_score = 0u;
     NotifyListenersForGameReset();
 }
 

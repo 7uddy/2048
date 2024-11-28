@@ -18,6 +18,7 @@ namespace game
 		void ResetGame() override;
 
 		unsigned int GetScore() const override;
+		unsigned int GetMaxScore() const override;
 
 		void SetBoard(const std::string& board) override;
 		std::string GetBoard() const override;
@@ -30,8 +31,9 @@ namespace game
 	private:
 		void InitializeRandomPieces() override;
 		void PlacePieceAtRandomPosition() override;
-		bool ApplyMoveUtil(Movement position) override;
+		void UpdateMaxScore() override;
 
+		bool ApplyMoveUtil(Movement position) override;
 
 		void NotifyListenersForMoveDone() const override;
 		void NotifyListenersForGameOver() const override;
@@ -41,7 +43,6 @@ namespace game
 		Board m_board;
 		std::vector<std::weak_ptr<IGameListener>> m_observers;
 		unsigned int m_score;
-
-		// Inherited via IGame
+		unsigned int m_maxScore;
 	};
 }
