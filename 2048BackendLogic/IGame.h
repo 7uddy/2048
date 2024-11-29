@@ -5,6 +5,14 @@
 
 namespace game
 {
+	enum class Movement
+	{
+		UP = 0,
+		DOWN,
+		LEFT,
+		RIGHT
+	};
+
 	class IGame
 	{
 	public:

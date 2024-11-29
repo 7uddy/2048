@@ -3,13 +3,9 @@
 
 using namespace game;
 
-game::Board::Board(unsigned int size) : m_size{ size }, m_numberOfPiecesOnBoard{ 0u }
+game::Board::Board(unsigned int size) : m_size{ size }
 {
-    for (unsigned int indexLine{ 0u }; indexLine < m_size; ++indexLine)
-    {
-        std::vector<std::shared_ptr<IPiece>> newLine{ m_size };
-        m_board.emplace_back(std::move(newLine));
-    }
+    InitializeRows();
 }
 
 void game::Board::PlacePiece(Position position, std::shared_ptr<IPiece> piece)
@@ -138,6 +134,17 @@ bool game::Board::IsPositionValid(Position position) const
     return true;
 }
 
+void game::Board::InitializeRows()
+{
+    m_numberOfPiecesOnBoard = 0u;
+    m_board.clear();
+    for (unsigned int indexLine{ 0u }; indexLine < m_size; ++indexLine)
+    {
+        std::vector<std::shared_ptr<IPiece>> newLine{ m_size };
+        m_board.emplace_back(std::move(newLine));
+    }
+}
+
 unsigned int game::Board::GetNumberOfPiecesOnBoard() const
 {
     return m_numberOfPiecesOnBoard;
@@ -184,8 +191,6 @@ std::string game::Board::GetBoard() const
 
 void game::Board::SetBoard(const std::string& board)
 {
-    ResetBoard();
-
     auto extractNumbers = [](const std::string& text) {
         std::vector<int> extractedNumbers;
         std::string currentNumber;
@@ -207,10 +212,23 @@ void game::Board::SetBoard(const std::string& board)
         return extractedNumbers;
         };
 
+    auto isSquareNumber = [](long long x){
+            if (x >= 0) {
+
+                long long sr = (long long) sqrt(x);
+
+                return (sr * sr == x);
+            }
+            return false;
+        };
+
     std::vector<int> numbers{ extractNumbers(board) };
 
-    if ((unsigned int)numbers.size() != m_size * m_size)
+    if (numbers.size() < 9 || !isSquareNumber(numbers.size()))
         return;
+
+    m_size = (unsigned int)std::sqrt(numbers.size());
+    InitializeRows();
 
     unsigned int currentIndex{ 0u };
     for (const auto& number : numbers)

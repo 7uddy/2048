@@ -38,6 +38,8 @@ namespace game
 
 		//Function related to position on board
 		bool IsPositionValid(Position position) const override;
+	private:
+		void InitializeRows() override;
 
 	private:
 		std::vector<std::vector<std::shared_ptr<IPiece>>> m_board;

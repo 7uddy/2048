@@ -26,14 +26,6 @@ namespace game
 		}
 	};
 
-	enum class Movement
-	{
-		UP = 0,
-		DOWN,
-		LEFT,
-		RIGHT
-	};
-
 	class IBoard
 	{
 	public:
@@ -57,5 +49,8 @@ namespace game
 		virtual void FlipDiagonally() = 0;
 
 		virtual bool IsPositionValid(Position position) const = 0;
+
+	private:
+		virtual void InitializeRows() = 0;
 	};
 }
