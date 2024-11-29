@@ -5,6 +5,8 @@ using namespace game;
 
 game::Board::Board(unsigned int size) : m_size{ size }
 {
+    if (size <= 2)
+        throw std::exception{ "Error in board initialization : Invalid board size." };
     InitializeRows();
 }
 
@@ -225,7 +227,10 @@ void game::Board::SetBoard(const std::string& board)
     std::vector<int> numbers{ extractNumbers(board) };
 
     if (numbers.size() < 9 || !isSquareNumber(numbers.size()))
+    {
+        std::cerr << "Cannot SetBoard : Invalid board size.";
         return;
+    }
 
     m_size = (unsigned int)std::sqrt(numbers.size());
     InitializeRows();

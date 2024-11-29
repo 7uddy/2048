@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-
+#include <fstream>
 #include "IGame.h"
 #include "Board.h"
 
@@ -9,7 +9,12 @@ namespace game
 	class Game : public IGame
 	{
 	public:
-		Game(unsigned int sizeOfBoard);
+		const static std::string DefaultPathToBoardFile;
+		const static unsigned int DefaultBoardSize{ 3u };
+
+	public:
+		Game(unsigned int sizeOfBoard = DefaultBoardSize);
+		Game(const std::string& pathToFileWithBoard = DefaultPathToBoardFile);
 
 		void ApplyMove(Movement move) override;
 
@@ -27,7 +32,8 @@ namespace game
 		void AddListener(std::shared_ptr<IGameListener> observer) override;
 		void RemoveListener(IGameListener* observer) override;
 
-
+		void ReadBoardFromFile() override;
+		void SaveBoardInFile() override;
 	private:
 		void InitializeRandomPieces() override;
 		void PlacePieceAtRandomPosition() override;
@@ -38,11 +44,13 @@ namespace game
 		void NotifyListenersForMoveDone() const override;
 		void NotifyListenersForGameOver() const override;
 		void NotifyListenersForGameReset() const override;
+		
 
 	private:
 		Board m_board;
 		std::vector<std::weak_ptr<IGameListener>> m_observers;
 		unsigned int m_score;
 		unsigned int m_maxScore;
+		std::string m_pathToFileWithBoard;
 	};
 }

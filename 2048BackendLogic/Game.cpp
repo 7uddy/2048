@@ -1,8 +1,16 @@
 #include "Game.h"
 
-game::Game::Game(unsigned int sizeOfBoard) : m_board{ sizeOfBoard }, m_score{ 0u }, m_maxScore{ 0u }
+const std::string game::Game::DefaultPathToBoardFile{ "board.txt" };
+
+
+game::Game::Game(unsigned int sizeOfBoard) : m_board{ sizeOfBoard }, m_score{ 0u }, m_maxScore{ 0u }, m_pathToFileWithBoard{ DefaultPathToBoardFile }
 {
     InitializeRandomPieces();
+}
+
+game::Game::Game(const std::string& pathToFileWithBoard) : m_board{ DefaultBoardSize }, m_score{ 0u }, m_maxScore{ 0u }, m_pathToFileWithBoard{ pathToFileWithBoard }
+{
+    ReadBoardFromFile();
 }
 
 void game::Game::ApplyMove(Movement direction)
@@ -109,6 +117,39 @@ void game::Game::NotifyListenersForGameReset() const
     }
 }
 
+void game::Game::ReadBoardFromFile()
+{
+    std::ifstream file{ m_pathToFileWithBoard };
+
+    if (!file.is_open()) 
+    {
+        throw std::runtime_error("Nu s-a putut deschide fisierul: " + m_pathToFileWithBoard);
+    }
+
+    std::ostringstream buffer;
+    buffer << file.rdbuf();
+
+    std::string board{ buffer.str() };
+
+    file.close();
+
+    m_board.SetBoard(board);
+}
+
+void game::Game::SaveBoardInFile()
+{
+    std::string board{ m_board.GetBoard() };
+
+    std::ofstream file{ m_pathToFileWithBoard };
+    if (!file.is_open())
+    {
+        throw std::runtime_error("Nu s-a putut deschide fisierul pentru scriere: " + m_pathToFileWithBoard);
+    }
+    file << board;
+
+    file.close();
+}
+
 unsigned int game::Game::GetMaxScore() const
 {
     return m_maxScore;
@@ -158,7 +199,6 @@ bool game::Game::IsGameOver()
 {
     std::string currentBoard{ m_board.GetBoard() };
 
-    //Check if any modification was made when applying a move
     if (ApplyMoveUtil(Movement::UP) || ApplyMoveUtil(Movement::DOWN) || ApplyMoveUtil(Movement::LEFT) || ApplyMoveUtil(Movement::RIGHT))
     {
         m_board.SetBoard(currentBoard);
