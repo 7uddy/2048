@@ -10,25 +10,23 @@ MainWindow::MainWindow(QWidget* parent)
     listener(std::make_shared<GameListener>())
 {
     setCentralWidget(centralWidget);
-    this->setMinimumSize(600, 400);
-    this->setMaximumSize(1000, 600);
+    this->setMinimumSize(800, 600);
+    this->setMaximumSize(1000, 800);
     centralWidget->setLayout(boardLayout);
 
-
-
     this->gameLogic->AddListener(listener);
-    this->initializeGameBoard();
+    this->InitializeGameBoard();
 
     // Menu bar setup
     QMenu* gameMenu = menuBar()->addMenu(tr("&Game"));
     QAction* resetAction = gameMenu->addAction(tr("&Reset"));
     QAction* exitAction = gameMenu->addAction(tr("&Exit"));
 
-    connect(listener.get(), &GameListener::notifyMoveDone, this, [this]() {updateGameBoard(); });
-    connect(listener.get(), &GameListener::notifyGameReset, this, [this]() {updateGameBoard(); });
+    connect(listener.get(), &GameListener::notifyMoveDone, this, [this]() {UpdateGameBoard(); });
+    connect(listener.get(), &GameListener::notifyGameReset, this, [this]() {UpdateGameBoard(); });
 
-    
-    connect(resetAction, &QAction::triggered, this, &MainWindow::initializeGameBoard);
+    //TODO implement board reset action
+    connect(resetAction, &QAction::triggered, this, &MainWindow::InitializeGameBoard);
     connect(exitAction, &QAction::triggered, this, &MainWindow::close);
 }
 
@@ -37,7 +35,7 @@ MainWindow::~MainWindow()
     delete boardLayout;
 }
 
-QString MainWindow::generateColor(int value)
+QString MainWindow::GenerateColor(int value)
 {
     if (value == 0) {
         return "#BEC7D5"; // Default background for empty tiles
@@ -54,7 +52,7 @@ QString MainWindow::generateColor(int value)
     return color.name();
 }
 
-void MainWindow::updateTileColor(QLabel* label, const QString& color) 
+void MainWindow::UpdateTileColor(QLabel* label, const QString& color) 
 {
     QString currentStyle = label->styleSheet();
 
@@ -74,38 +72,54 @@ void MainWindow::updateTileColor(QLabel* label, const QString& color)
     label->setStyleSheet(newStyle);
 }
 
-void MainWindow::initializeGameBoard()
+void MainWindow::InitializeGameBoard()
 {
+    this->gameLogic->ResetGame();
+
+    // Clear existing items if necessary
+    while (QLayoutItem* item = boardLayout->takeAt(0)) {
+        delete item->widget();  // Deletes the QLabel or widget in the grid
+        delete item;
+    }
+
+    m_scoreLabel = new QLabel("Score: 0", this);
+    m_scoreLabel->setAlignment(Qt::AlignCenter);
+    m_scoreLabel->setStyleSheet("font-size: 20px; font-weight: bold; margin: 5px;");
+    boardLayout->addWidget(m_scoreLabel, 0, 0, 1, m_boardSize); // Add score label spanning all columns
+
+
     std::string boardString = this->gameLogic->GetBoard();
     std::istringstream stream(boardString);
     std::string token;
 
-    int row = 0, column = 0;
+    //Start row count from 1, as row 0 has the score
+    int row = 1, column = 0;
     while (stream >> token)
     {
         //Create a new tile to add as a widget in the grid, set it's text as the one in the game
         QLabel* tile = new QLabel();
         QString text = QString::fromUtf8(token.c_str());
 
-        //Set the text to 0 so empty tiles will get a basic color
-        tile->setText(text.toInt() > 0 ? QString::number((text).toInt()) : "");
         this->boardLayout->addWidget(tile, row, column);
-        
-        //Generate a color based on the value
-        QString color = this->generateColor(text.toInt());
 
+        //Set the text to 0 so empty tiles will get a basic color, center the text
+        tile->setText(text.toInt() > 0 ? QString::number((text).toInt()) : "");
+        tile->setAlignment(Qt::AlignCenter);
+        
+
+        QString color = this->GenerateColor(text.toInt());
+
+        //Set a stylesheet for each tile, passing the generated color as a parameter
         tile->setStyleSheet(QString(
             "QLabel { "
             "border: 2px solid #BBADA0; "  // Border color
             "border-radius: 10px; "        // Rounded corners
             "background-color: %1; "      // Dynamic background
-            "color: %2; "                 // Text color
             "font-size: 24px; "           // Font size
             "font-weight: bold; "         // Bold text
             "}"
-        )
-            .arg(color)
-            .arg(text.toInt() > 4 ? "#F9F6F2" : "#776E65")); // Light or dark text based on value
+        ).arg(color));
+
 
         column++;
         if (column == 4)
@@ -141,24 +155,28 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
 }
 
 
-void MainWindow::updateGameBoard()
+void MainWindow::UpdateGameBoard()
 {
+    this->m_scoreLabel->setText(QString("Score: %1").arg(this->gameLogic->GetScore()));
     std::string boardString = this->gameLogic->GetBoard();
     std::istringstream stream(boardString);
     std::string token;
 
-    int row = 0, column = 0;
+    //Start row count from 1, as row 0 has the score
+    int row = 1, column = 0;
     while (stream >> token)
     {
+        //Same as before, generate a QString for each label, cast every grid widget as a lavel and style based on value
         QString text = QString::fromUtf8(token.c_str());
         QLabel* tile = qobject_cast<QLabel*>(this->boardLayout->itemAtPosition(row, column)->widget());
         tile->setText(text.toInt() > 0 ? QString::number((text).toInt()) : "");
         tile->setAlignment(Qt::AlignCenter);
         this->boardLayout->addWidget(tile, row, column);
 
-        QString color = this->generateColor(text.toInt());
+        QString color = this->GenerateColor(text.toInt());
 
-        updateTileColor(tile, color);
+        //Update a tile's color without changing it's entire stylesheet
+        UpdateTileColor(tile, color);
 
         column++;
         if (column == 4)
@@ -167,4 +185,8 @@ void MainWindow::updateGameBoard()
             row++;
         }
     }
+}
+
+bool MainWindow::IsBoardEmpty() {
+    return this->boardLayout->count() == 0;
 }

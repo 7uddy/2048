@@ -21,11 +21,15 @@ private:
     QWidget* centralWidget;
     QGridLayout* boardLayout;
     QLabel* boardTiles[4][4];
+    QLabel* m_scoreLabel;
     game::Game* gameLogic;
     std::shared_ptr<GameListener> listener;
+    unsigned int m_boardSize = 4;
 
-    void updateTileColor(QLabel*,const QString&);
-    QString generateColor(int);
-    void initializeGameBoard();
-    void updateGameBoard();
+    void UpdateTileColor(QLabel*,const QString&);
+    QString GenerateColor(int);
+    void InitializeGameBoard();
+    void ResetGameBoard();
+    void UpdateGameBoard();
+    bool IsBoardEmpty();
 };
