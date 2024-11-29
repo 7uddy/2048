@@ -31,8 +31,8 @@ namespace game
 		virtual void AddListener(std::shared_ptr<IGameListener> observer) = 0;
 		virtual void RemoveListener(IGameListener* observer) = 0;
 
-		virtual void ReadBoardFromFile() = 0;
-		virtual void SaveBoardInFile() = 0;
+		virtual void ReadGameStateFromFile() = 0;
+		virtual void SaveGameStateInFile() = 0;
 
 	private:
 		virtual void InitializeRandomPieces() = 0;

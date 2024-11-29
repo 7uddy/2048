@@ -10,7 +10,7 @@ game::Game::Game(unsigned int sizeOfBoard) : m_board{ sizeOfBoard }, m_score{ 0u
 
 game::Game::Game(const std::string& pathToFileWithBoard) : m_board{ DefaultBoardSize }, m_score{ 0u }, m_maxScore{ 0u }, m_pathToFileWithBoard{ pathToFileWithBoard }
 {
-    ReadBoardFromFile();
+    ReadGameStateFromFile();
 }
 
 void game::Game::ApplyMove(Movement direction)
@@ -117,34 +117,77 @@ void game::Game::NotifyListenersForGameReset() const
     }
 }
 
-void game::Game::ReadBoardFromFile()
+void game::Game::ReadGameStateFromFile()
 {
     std::ifstream file{ m_pathToFileWithBoard };
-
-    if (!file.is_open()) 
+    if (!file.is_open())
     {
-        throw std::runtime_error("Nu s-a putut deschide fisierul: " + m_pathToFileWithBoard);
+        throw std::runtime_error("Nu s-a putut deschide fisierul pentru citire: " + m_pathToFileWithBoard);
     }
 
-    std::ostringstream buffer;
-    buffer << file.rdbuf();
+    unsigned int lineNumber{ 0u };
+    std::string readBoard, line;
 
-    std::string board{ buffer.str() };
+    while (std::getline(file, line))
+    {
+        if (line.empty() || line[0] == '#')
+        {
+            continue;
+        }
+
+        if (lineNumber == 0)
+        {
+            std::istringstream scoreStream(line);
+            if (!(scoreStream >> m_score >> m_maxScore))
+            {
+                file.close();
+                throw std::runtime_error("Eroare la citirea scorurilor din fisier: " + m_pathToFileWithBoard);
+            }
+        }
+        else
+        {
+            readBoard += line + "\n";
+        }
+
+        lineNumber++;
+    }
+
+    if (lineNumber == 0)
+    {
+        file.close();
+        throw std::runtime_error("Fisierul este gol sau nu contine date valide: " + m_pathToFileWithBoard);
+    }
+
+    try 
+    {
+        m_board.SetBoard(readBoard);
+    }
+    catch (...)
+    {
+        ResetGame();
+    }
 
     file.close();
-
-    m_board.SetBoard(board);
 }
 
-void game::Game::SaveBoardInFile()
+
+void game::Game::SaveGameStateInFile()
 {
-    std::string board{ m_board.GetBoard() };
 
     std::ofstream file{ m_pathToFileWithBoard };
     if (!file.is_open())
     {
         throw std::runtime_error("Nu s-a putut deschide fisierul pentru scriere: " + m_pathToFileWithBoard);
     }
+
+    std::string board{ m_board.GetBoard() };
+    file << "#    This file contains the game data of a particular instance of a game.\n";
+    file << "#    All lines marked with # at the beginning are considered comments.\n";
+    file << "#    Data related information:\n";
+    file << "#      -on the first line, the first integer represents the current score;\n";
+    file << "#      -on the first line, the second integer represents the maximum acquired score;\n";
+    file << "#      -on the following lines, the numbers represent the game board pieces.\n";
+    file << m_score << " " << m_maxScore << "\n";
     file << board;
 
     file.close();
@@ -165,7 +208,7 @@ void game::Game::ResetGame()
 {
     m_board.ResetBoard();
     InitializeRandomPieces();
-    m_maxScore = m_score = 0u;
+    m_score = 0u;
     NotifyListenersForGameReset();
 }
 

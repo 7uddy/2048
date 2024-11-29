@@ -13,7 +13,7 @@ namespace game
 		const static unsigned int DefaultBoardSize{ 3u };
 
 	public:
-		Game(unsigned int sizeOfBoard = DefaultBoardSize);
+		Game(unsigned int sizeOfBoard);
 		Game(const std::string& pathToFileWithBoard = DefaultPathToBoardFile);
 
 		void ApplyMove(Movement move) override;
@@ -32,8 +32,8 @@ namespace game
 		void AddListener(std::shared_ptr<IGameListener> observer) override;
 		void RemoveListener(IGameListener* observer) override;
 
-		void ReadBoardFromFile() override;
-		void SaveBoardInFile() override;
+		void ReadGameStateFromFile() override;
+		void SaveGameStateInFile() override;
 	private:
 		void InitializeRandomPieces() override;
 		void PlacePieceAtRandomPosition() override;

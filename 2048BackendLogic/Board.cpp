@@ -228,8 +228,7 @@ void game::Board::SetBoard(const std::string& board)
 
     if (numbers.size() < 9 || !isSquareNumber(numbers.size()))
     {
-        std::cerr << "Cannot SetBoard : Invalid board size.";
-        return;
+        throw std::exception{ "Cannot SetBoard : Invalid board size." };
     }
 
     m_size = (unsigned int)std::sqrt(numbers.size());
