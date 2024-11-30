@@ -13,6 +13,27 @@ namespace game
 		RIGHT
 	};
 
+	struct GameState
+	{
+		unsigned int score;
+		unsigned int maxScore;
+		std::string board; 
+		unsigned int timesLeftToUseSwap;
+		unsigned int timesLeftToUseUndo;
+
+		GameState() : score{ 0u }, maxScore{ 0u }, board{ "" }, timesLeftToUseSwap{ 2u }, timesLeftToUseUndo{ 2u } {
+			/*EMPTY*/
+		}
+
+		GameState(unsigned int score, unsigned int maxScore, const std::string& board, unsigned int timesLeftToUseSwap, unsigned int timesLeftToUseUndo) {
+			this->score = score;
+			this->maxScore = maxScore;
+			this->board = board;
+			this->timesLeftToUseSwap = timesLeftToUseSwap;
+			this->timesLeftToUseUndo = timesLeftToUseUndo;
+		}
+	};
+
 	class IGame
 	{
 	public:

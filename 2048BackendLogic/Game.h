@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <fstream>
+#include <stack>
 #include "IGame.h"
 #include "Board.h"
 
@@ -54,8 +55,9 @@ namespace game
 	private:
 		Board m_board;
 		std::vector<std::weak_ptr<IGameListener>> m_observers;
-		unsigned int m_score;
-		unsigned int m_maxScore;
 		std::string m_pathToFileWithBoard;
+
+		GameState m_gameState;
+		std::stack<GameState> m_previousGameStates;
 	};
 }

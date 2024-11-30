@@ -2,13 +2,15 @@
 
 const std::string game::Game::DefaultPathToBoardFile{ "board.txt" };
 
-game::Game::Game(unsigned int sizeOfBoard) : m_board{ sizeOfBoard }, m_score{ 0u }, m_maxScore{ 0u }, m_pathToFileWithBoard{ DefaultPathToBoardFile }
+game::Game::Game(unsigned int sizeOfBoard) : m_board{ sizeOfBoard }, m_gameState{}, m_pathToFileWithBoard { DefaultPathToBoardFile }
 {
     InitializeRandomPieces();
 }
 
 void game::Game::ApplyMove(Movement direction)
 {
+    GameState possiblePreviousState{ m_gameState };
+
     if (direction == Movement::LEFT || direction == Movement::RIGHT)
         m_board.FlipDiagonally();
 
@@ -20,7 +22,7 @@ void game::Game::ApplyMove(Movement direction)
     {
         MoveResult result = m_board.SquashColumn(index);
         modificationWasMade = modificationWasMade || result.modificationWasMade;
-        m_score += result.scoreGained;
+        m_gameState.score += result.scoreGained;
     }
 
     if (direction == Movement::UP || direction == Movement::LEFT)
@@ -31,8 +33,10 @@ void game::Game::ApplyMove(Movement direction)
 
     UpdateMaxScore();
 
-    if (modificationWasMade)
+    if (modificationWasMade) {
+        m_previousGameStates.push(possiblePreviousState);
         PlacePieceAtRandomPosition();
+    }
 
     NotifyListenersForMoveDone();
     
@@ -44,13 +48,27 @@ void game::Game::ApplyMove(Movement direction)
 
 void game::Game::ApplySwitchTiles(Position position1, Position position2)
 {
+    m_previousGameStates.push(m_gameState);
     m_board.SwapPiecesAtPositions(position1, position2);
+    m_gameState.timesLeftToUseSwap--;
+    m_gameState.board = m_board.GetBoard();
     NotifyListenersForMoveDone();
 }
 
 void game::Game::ApplyUndo()
 {
-    /*TO BE IMPLEMENTED*/
+    if (m_previousGameStates.empty() || !m_gameState.timesLeftToUseUndo)
+        return;
+
+    GameState& toBeCurrentState = m_previousGameStates.top();
+    
+    m_gameState = toBeCurrentState;
+    m_board.SetBoard(toBeCurrentState.board);
+    m_gameState.timesLeftToUseUndo--;
+
+    m_previousGameStates.pop();
+
+    NotifyListenersForMoveDone();
 }
 
 void game::Game::SetPathToBoardFile(const std::string& newPath)
@@ -70,7 +88,7 @@ void game::Game::SetBoard(const std::string& board)
 
 std::string game::Game::GetBoard() const
 {
-	return m_board.GetBoard();
+	return m_gameState.board;
 }
 
 game::Board game::Game::GetBoardObject() const noexcept
@@ -153,7 +171,7 @@ void game::Game::ReadGameStateFromFile()
         if (lineNumber == 0)
         {
             std::istringstream scoreStream(line);
-            if (!(scoreStream >> m_score >> m_maxScore))
+            if (!(scoreStream >> m_gameState.score >> m_gameState.maxScore))
             {
                 file.close();
                 throw std::runtime_error("Eroare la citirea scorurilor din fisier: " + m_pathToFileWithBoard);
@@ -176,6 +194,7 @@ void game::Game::ReadGameStateFromFile()
     try 
     {
         m_board.SetBoard(readBoard);
+        m_gameState.board = readBoard;
     }
     catch (...)
     {
@@ -195,41 +214,41 @@ void game::Game::SaveGameStateInFile()
         throw std::runtime_error("Nu s-a putut deschide fisierul pentru scriere: " + m_pathToFileWithBoard);
     }
 
-    std::string board{ m_board.GetBoard() };
     file << "#    This file contains the game data of a particular instance of a game.\n";
     file << "#    All lines marked with # at the beginning are considered comments.\n";
     file << "#    Data related information:\n";
     file << "#      -on the first line, the first integer represents the current score;\n";
     file << "#      -on the first line, the second integer represents the maximum acquired score;\n";
     file << "#      -on the following lines, the numbers represent the game board pieces.\n";
-    file << m_score << " " << m_maxScore << "\n";
-    file << board;
+    file << m_gameState.score << " " << m_gameState.maxScore << "\n";
+    file << m_gameState.board;
 
     file.close();
 }
 
 unsigned int game::Game::GetMaxScore() const
 {
-    return m_maxScore;
+    return m_gameState.maxScore;
 }
 
 void game::Game::UpdateMaxScore()
 {
-    m_maxScore = std::max(m_maxScore, m_score);
+    m_gameState.maxScore = std::max(m_gameState.maxScore, m_gameState.score);
 }
 
 
 void game::Game::ResetGame()
 {
     m_board.ResetBoard();
+    m_gameState = GameState{};
     InitializeRandomPieces();
-    m_score = 0u;
+    m_previousGameStates = std::stack<GameState>();
     NotifyListenersForGameReset();
 }
 
 unsigned int game::Game::GetScore() const
 {
-    return m_score;
+    return m_gameState.score;
 }
 
 void game::Game::InitializeRandomPieces()
@@ -251,6 +270,7 @@ void game::Game::PlacePieceAtRandomPosition()
         position = m_board.GetRandomEmptyPosition();
     }
     m_board.PlacePiece(position, std::make_shared<Piece>());
+    m_gameState.board = m_board.GetBoard();
 }
 
 bool game::Game::IsGameOver()
