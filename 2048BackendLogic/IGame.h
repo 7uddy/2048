@@ -17,16 +17,20 @@ namespace game
 	{
 	public:
 		virtual void ApplyMove(Movement position) = 0;
+		virtual void ApplySwitchTiles(Position position1, Position position2) = 0;
+		virtual void ApplyUndo() = 0;
 
 		virtual bool IsGameOver() = 0;
 
 		virtual void ResetGame() = 0;
 
+		virtual void SetPathToBoardFile(const std::string& newPath) = 0;
 		virtual void SetBoard(const std::string& board) = 0;
 		virtual std::string GetBoard() const = 0;
 
 		virtual unsigned int GetScore() const = 0;
 		virtual unsigned int GetMaxScore() const = 0;
+		virtual std::string GetPathToBoardFile() const = 0;
 
 		virtual void AddListener(std::shared_ptr<IGameListener> observer) = 0;
 		virtual void RemoveListener(IGameListener* observer) = 0;

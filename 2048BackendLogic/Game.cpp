@@ -2,15 +2,9 @@
 
 const std::string game::Game::DefaultPathToBoardFile{ "board.txt" };
 
-
 game::Game::Game(unsigned int sizeOfBoard) : m_board{ sizeOfBoard }, m_score{ 0u }, m_maxScore{ 0u }, m_pathToFileWithBoard{ DefaultPathToBoardFile }
 {
     InitializeRandomPieces();
-}
-
-game::Game::Game(const std::string& pathToFileWithBoard) : m_board{ DefaultBoardSize }, m_score{ 0u }, m_maxScore{ 0u }, m_pathToFileWithBoard{ pathToFileWithBoard }
-{
-    ReadGameStateFromFile();
 }
 
 void game::Game::ApplyMove(Movement direction)
@@ -46,6 +40,27 @@ void game::Game::ApplyMove(Movement direction)
     {
         NotifyListenersForGameOver();
     }
+}
+
+void game::Game::ApplySwitchTiles(Position position1, Position position2)
+{
+    m_board.SwapPiecesAtPositions(position1, position2);
+    NotifyListenersForMoveDone();
+}
+
+void game::Game::ApplyUndo()
+{
+    /*TO BE IMPLEMENTED*/
+}
+
+void game::Game::SetPathToBoardFile(const std::string& newPath)
+{
+    m_pathToFileWithBoard = newPath;
+}
+
+std::string game::Game::GetPathToBoardFile() const
+{
+    return m_pathToFileWithBoard;
 }
 
 void game::Game::SetBoard(const std::string& board)

@@ -14,9 +14,10 @@ namespace game
 
 	public:
 		Game(unsigned int sizeOfBoard);
-		Game(const std::string& pathToFileWithBoard = DefaultPathToBoardFile);
 
 		void ApplyMove(Movement move) override;
+		void ApplySwitchTiles(Position position1, Position position2) override;
+		void ApplyUndo() override;
 
 		bool IsGameOver() override;
 
@@ -24,6 +25,10 @@ namespace game
 
 		unsigned int GetScore() const override;
 		unsigned int GetMaxScore() const override;
+
+		void SetPathToBoardFile(const std::string& newPath) override;
+		std::string GetPathToBoardFile() const override;
+		
 
 		void SetBoard(const std::string& board) override;
 		std::string GetBoard() const override;
