@@ -29,11 +29,9 @@ namespace game
 
 		void SetPathToBoardFile(const std::string& newPath) override;
 		std::string GetPathToBoardFile() const override;
-		
 
 		void SetBoard(const std::string& board) override;
 		std::string GetBoard() const override;
-		Board GetBoardObject() const noexcept;
 
 		void AddListener(std::shared_ptr<IGameListener> observer) override;
 		void RemoveListener(IGameListener* observer) override;
@@ -53,7 +51,7 @@ namespace game
 		
 
 	private:
-		Board m_board;
+		std::unique_ptr<IBoard> m_board;
 		std::vector<std::weak_ptr<IGameListener>> m_observers;
 		std::string m_pathToFileWithBoard;
 

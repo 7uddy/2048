@@ -2,7 +2,7 @@
 
 const std::string game::Game::DefaultPathToBoardFile{ "board.txt" };
 
-game::Game::Game(unsigned int sizeOfBoard) : m_board{ sizeOfBoard }, m_gameState{}, m_pathToFileWithBoard { DefaultPathToBoardFile }
+game::Game::Game(unsigned int sizeOfBoard) : m_board{ std::make_unique<Board>(sizeOfBoard) }, m_gameState{}, m_pathToFileWithBoard { DefaultPathToBoardFile }
 {
     InitializeRandomPieces();
 }
@@ -12,28 +12,29 @@ void game::Game::ApplyMove(Movement direction)
     GameState possiblePreviousState{ m_gameState };
 
     if (direction == Movement::LEFT || direction == Movement::RIGHT)
-        m_board.FlipDiagonally();
+        m_board->FlipDiagonally();
 
     if (direction == Movement::UP || direction == Movement::LEFT)
-        m_board.FlipVertically();
+        m_board->FlipVertically();
 
     bool modificationWasMade{ false };
-    for (unsigned int index{ 0 }; index < m_board.GetBoardSize(); ++index)
+    for (unsigned int index{ 0 }; index < m_board->GetBoardSize(); ++index)
     {
-        MoveResult result = m_board.SquashColumn(index);
+        MoveResult result = m_board->SquashColumn(index);
         modificationWasMade = modificationWasMade || result.modificationWasMade;
         m_gameState.score += result.scoreGained;
     }
 
     if (direction == Movement::UP || direction == Movement::LEFT)
-        m_board.FlipVertically();
+        m_board->FlipVertically();
 
     if (direction == Movement::LEFT || direction == Movement::RIGHT)
-        m_board.FlipDiagonally();
+        m_board->FlipDiagonally();
 
-    UpdateMaxScore();
-
-    if (modificationWasMade) {
+    //TO ADD LOGIC RELATED TO RECEIVE ADDITIONAL CHANCES FOR UNDO MOVE/SWAP TILES
+    if (modificationWasMade) 
+    {
+        UpdateMaxScore();
         m_previousGameStates.push(possiblePreviousState);
         PlacePieceAtRandomPosition();
     }
@@ -48,10 +49,14 @@ void game::Game::ApplyMove(Movement direction)
 
 void game::Game::ApplySwitchTiles(Position position1, Position position2)
 {
+    if (!m_gameState.timesLeftToUseSwap)
+        return;
+
     m_previousGameStates.push(m_gameState);
-    m_board.SwapPiecesAtPositions(position1, position2);
+    m_board->SwapPiecesAtPositions(position1, position2);
     m_gameState.timesLeftToUseSwap--;
-    m_gameState.board = m_board.GetBoard();
+    m_gameState.board = m_board->GetBoard();
+
     NotifyListenersForMoveDone();
 }
 
@@ -60,13 +65,12 @@ void game::Game::ApplyUndo()
     if (m_previousGameStates.empty() || !m_gameState.timesLeftToUseUndo)
         return;
 
-    GameState& toBeCurrentState = m_previousGameStates.top();
+    GameState toBeCurrentState = m_previousGameStates.top();
+    m_previousGameStates.pop();
     
     m_gameState = toBeCurrentState;
-    m_board.SetBoard(toBeCurrentState.board);
+    m_board->SetBoard(toBeCurrentState.board);
     m_gameState.timesLeftToUseUndo--;
-
-    m_previousGameStates.pop();
 
     NotifyListenersForMoveDone();
 }
@@ -83,17 +87,12 @@ std::string game::Game::GetPathToBoardFile() const
 
 void game::Game::SetBoard(const std::string& board)
 {
-	m_board.SetBoard(board);
+	m_board->SetBoard(board);
 }
 
 std::string game::Game::GetBoard() const
 {
 	return m_gameState.board;
-}
-
-game::Board game::Game::GetBoardObject() const noexcept
-{
-	return m_board;
 }
 
 void game::Game::AddListener(std::shared_ptr<IGameListener> observer)
@@ -193,7 +192,7 @@ void game::Game::ReadGameStateFromFile()
 
     try 
     {
-        m_board.SetBoard(readBoard);
+        m_board->SetBoard(readBoard);
         m_gameState.board = readBoard;
     }
     catch (...)
@@ -239,10 +238,10 @@ void game::Game::UpdateMaxScore()
 
 void game::Game::ResetGame()
 {
-    m_board.ResetBoard();
+    m_previousGameStates = std::stack<GameState>();
+    m_board = std::make_unique<Board>(m_board->GetBoardSize());
     m_gameState = GameState{};
     InitializeRandomPieces();
-    m_previousGameStates = std::stack<GameState>();
     NotifyListenersForGameReset();
 }
 
@@ -253,7 +252,7 @@ unsigned int game::Game::GetScore() const
 
 void game::Game::InitializeRandomPieces()
 {
-    while (m_board.GetNumberOfPiecesOnBoard() < 2u)
+    while (m_board->GetNumberOfPiecesOnBoard() < 2u)
     {
         PlacePieceAtRandomPosition();
     }
@@ -261,25 +260,26 @@ void game::Game::InitializeRandomPieces()
 
 void game::Game::PlacePieceAtRandomPosition()
 {
-    if (m_board.IsBoardFull())
+    if (m_board->IsBoardFull())
         return;
 
-    Position position{ m_board.GetRandomEmptyPosition() };
-    while (m_board.GetPieceAtPosition(position))
+    Position position{ m_board->GetRandomEmptyPosition() };
+    while (m_board->GetPieceAtPosition(position))
     {
-        position = m_board.GetRandomEmptyPosition();
+        position = m_board->GetRandomEmptyPosition();
     }
-    m_board.PlacePiece(position, std::make_shared<Piece>());
-    m_gameState.board = m_board.GetBoard();
+    m_board->PlacePiece(position, std::make_shared<Piece>());
+
+    m_gameState.board = m_board->GetBoard();
 }
 
 bool game::Game::IsGameOver()
 {
-    std::string currentBoard{ m_board.GetBoard() };
+    std::string currentBoard{ m_board->GetBoard() };
 
     if (ApplyMoveUtil(Movement::UP) || ApplyMoveUtil(Movement::DOWN) || ApplyMoveUtil(Movement::LEFT) || ApplyMoveUtil(Movement::RIGHT))
     {
-        m_board.SetBoard(currentBoard);
+        m_board->SetBoard(currentBoard);
         return false;
     }
 
@@ -289,22 +289,22 @@ bool game::Game::IsGameOver()
 bool game::Game::ApplyMoveUtil(Movement direction)
 {
     if (direction == Movement::LEFT || direction == Movement::RIGHT)
-        m_board.FlipDiagonally();
+        m_board->FlipDiagonally();
 
     if (direction == Movement::UP || direction == Movement::LEFT)
-        m_board.FlipVertically();
+        m_board->FlipVertically();
 
-    for (unsigned int index{ 0 }; index < m_board.GetBoardSize(); ++index)
+    for (unsigned int index{ 0 }; index < m_board->GetBoardSize(); ++index)
     {
-        if (m_board.SquashColumn(index).modificationWasMade)
+        if (m_board->SquashColumn(index).modificationWasMade)
             return true;
     }
 
     if (direction == Movement::UP || direction == Movement::LEFT)
-        m_board.FlipVertically();
+        m_board->FlipVertically();
 
     if (direction == Movement::LEFT || direction == Movement::RIGHT)
-        m_board.FlipDiagonally();
+        m_board->FlipDiagonally();
 
     return false;
 }

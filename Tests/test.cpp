@@ -250,6 +250,8 @@ TEST(GameTest, ResetScoreTest)
 TEST(GameTest, ApplyMoveTest)
 {
     Game game(4);
+    Board board{ 3 };
+    std::string currentBoard;
 
     game.SetBoard(
         "2 0 2 0 \n"
@@ -260,8 +262,11 @@ TEST(GameTest, ApplyMoveTest)
 
     game.ApplyMove(Movement::RIGHT);
 
-    ASSERT_EQ(game.GetBoardObject().GetPieceAtPosition(Position{0,3})->GetValue(), 4) << "Error at left/right movement";
-    ASSERT_EQ(game.GetBoardObject().GetPieceAtPosition(Position{ 1,3 })->GetValue(), 8) << "Error at left/right movement";
+    currentBoard = game.GetBoard();
+    board.SetBoard(currentBoard);
+
+    ASSERT_EQ(board.GetPieceAtPosition(Position{0,3})->GetValue(), 4) << "Error at left/right movement";
+    ASSERT_EQ(board.GetPieceAtPosition(Position{ 1,3 })->GetValue(), 8) << "Error at left/right movement";
 
     EXPECT_EQ(game.GetScore(), 12);
     
@@ -272,10 +277,13 @@ TEST(GameTest, ApplyMoveTest)
         "0 0 0 0 \n"
     );
     game.ApplyMove(Movement::DOWN);
+
+    currentBoard = game.GetBoard();
+    board.SetBoard(currentBoard);
     
-    ASSERT_EQ(game.GetBoardObject().GetPieceAtPosition(Position{ 3,0 })->GetValue(), 4) << "Error at up/down movement";
-    ASSERT_EQ(game.GetBoardObject().GetPieceAtPosition(Position{ 3,1 })->GetValue(), 4) << "Error at up/down movement";
-    ASSERT_EQ(game.GetBoardObject().GetPieceAtPosition(Position{ 3,2 })->GetValue(), 2) << "Error at up/down movement";
+    ASSERT_EQ(board.GetPieceAtPosition(Position{ 3,0 })->GetValue(), 4) << "Error at up/down movement";
+    ASSERT_EQ(board.GetPieceAtPosition(Position{ 3,1 })->GetValue(), 4) << "Error at up/down movement";
+    ASSERT_EQ(board.GetPieceAtPosition(Position{ 3,2 })->GetValue(), 2) << "Error at up/down movement";
 }
 
 TEST(GameTest, GameOverTest)
