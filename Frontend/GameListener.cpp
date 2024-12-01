@@ -14,3 +14,13 @@ void GameListener::OnGameReset()
 {
 	emit notifyGameReset();
 }
+
+void GameListener::OnEnableUndoMove(bool isEnabled)
+{
+	emit enableUndoButton(isEnabled);
+}
+
+void GameListener::OnEnableSwapTileMove(bool isEnabled)
+{
+	emit enableSwapTileButton(isEnabled);
+}

@@ -29,6 +29,13 @@ MainWindow::MainWindow(QWidget* parent)
 
     connect(listener.get(), &GameListener::notifyMoveDone, this, [this]() {UpdateGameBoard(); });
     connect(listener.get(), &GameListener::notifyGameReset, this, [this]() {UpdateGameBoard(); });
+    connect(listener.get(), &GameListener::notifyGameOver, this, [this]() 
+        {
+            UpdateGameBoard();
+            QMessageBox::information(this, "Joc Terminat", "Felicitari! Jocul s-a terminat."); 
+            gameLogic->ResetGame();
+        }
+    );
 
     //TODO implement board reset action
     connect(resetAction, &QAction::triggered, this, &MainWindow::InitializeGameBoard);
