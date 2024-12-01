@@ -30,6 +30,8 @@ private:
     QString GenerateColor(int);
     void InitializeGameBoard();
     void ResetGameBoard();
+    void SaveGameBoard();
+    void LoadGameBoard();
     void UpdateGameBoard();
     bool IsBoardEmpty();
 };

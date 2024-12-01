@@ -1,6 +1,8 @@
 ﻿#include "MainWindow.h"
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QFileDialog>
+
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent),
@@ -18,7 +20,10 @@ MainWindow::MainWindow(QWidget* parent)
     this->InitializeGameBoard();
 
     // Menu bar setup
+
     QMenu* gameMenu = menuBar()->addMenu(tr("&Game"));
+    QAction* saveAction = gameMenu->addAction(tr("&Save"));
+    QAction* loadAction = gameMenu->addAction(tr("&Load"));
     QAction* resetAction = gameMenu->addAction(tr("&Reset"));
     QAction* exitAction = gameMenu->addAction(tr("&Exit"));
 
@@ -27,6 +32,8 @@ MainWindow::MainWindow(QWidget* parent)
 
     //TODO implement board reset action
     connect(resetAction, &QAction::triggered, this, &MainWindow::InitializeGameBoard);
+    connect(saveAction, &QAction::triggered, this, &MainWindow::SaveGameBoard);
+    connect(loadAction, &QAction::triggered, this, &MainWindow::LoadGameBoard);
     connect(exitAction, &QAction::triggered, this, &MainWindow::close);
 }
 
@@ -51,6 +58,9 @@ QString MainWindow::GenerateColor(int value)
     color.setHslF(hue / 360.0, saturation, lightness);
     return color.name();
 }
+
+
+
 
 void MainWindow::UpdateTileColor(QLabel* label, const QString& color) 
 {
@@ -154,6 +164,39 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
     QMainWindow::keyPressEvent(event);
 }
 
+
+void MainWindow::SaveGameBoard() {
+    QString filePath = QFileDialog::getSaveFileName(this, "Choose save location ", "", "Text (*.txt)");
+    if (filePath.isEmpty()) {
+        return;
+    }
+
+    try {
+        gameLogic->SetPathToBoardFile(filePath.toStdString());
+        gameLogic->SaveGameStateInFile();
+        QMessageBox::information(this, "Saved succesfully ", "The game state was saved succesfully! ");
+    }
+    catch (const std::exception& e) {
+        QMessageBox::critical(this, "Save Error", QString("There was a problem: %1").arg(e.what()));
+    }
+}
+
+void MainWindow::LoadGameBoard() {
+    QString filePath = QFileDialog::getOpenFileName(this, "Choose load file ", "", "Text (*.txt)");
+    if (filePath.isEmpty()) {
+        return;
+    }
+    try {
+        gameLogic->SetPathToBoardFile(filePath.toStdString());
+        gameLogic->ReadGameStateFromFile();
+        UpdateGameBoard();
+        QMessageBox::information(this, "Load succesfully ", "The game state was loaded succesfully! ");
+    }
+    catch (const std::exception& e) {
+        QMessageBox::critical(this, "Load Error", QString("There was a problem: %1").arg(e.what()));
+    }
+
+}
 
 void MainWindow::UpdateGameBoard()
 {
