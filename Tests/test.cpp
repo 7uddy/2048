@@ -133,20 +133,21 @@ TEST(BoardTest, ResetBoardTest)
 
 TEST(BoardTest, SquashColumnTest)
 {
+    game::Game game(4);
+    std::string expectedInitialBoard =
+        "2 0 0 0 \n"
+        "2 0 0 0 \n"
+        "2 0 0 0 \n"
+        "0 0 0 0 \n";
+
+    game.SetBoard(expectedInitialBoard);
+    game.ApplyMove(Movement::DOWN);
+
+    std::string resultBoard = game.GetBoard();
+
     game::Board board(4);
-    game::Position pos1{ 0, 0 };
-    game::Position pos2{ 1, 0 };
-    game::Position pos3{ 2, 0 };
-    auto piece1 = std::make_shared<game::Piece>(2);
-    auto piece2 = std::make_shared<game::Piece>(2);
-    auto piece3 = std::make_shared<game::Piece>(2);
+    board.SetBoard(resultBoard);
 
-    board.PlacePiece(pos1, piece1);
-    board.PlacePiece(pos2, piece2);
-    board.PlacePiece(pos3, piece3);
-
-    game::MoveResult result = board.SquashColumn(0);
-    ASSERT_TRUE(result.modificationWasMade);
     game::Position expectedPos1{ 3,0 };
     game::Position expectedPos2{ 2,0 };
     ASSERT_EQ(board.GetPieceAtPosition(expectedPos1)->GetValue(), 4);
@@ -337,13 +338,20 @@ TEST(GameTest, NotifyListenersTest)
 
     game.AddListener(listener);
 
-    //EXPECT_CALL(*listener, OnGameOver()).Times(1);
 
-    //game.NotifyListenersForGameOver();
+    game.SetBoard(
+        "2 4 8 16 \n"
+        "4 8 16 32 \n"
+        "8 16 32 64 \n"
+        "16 32 64 128 \n"
+    );
+
+    EXPECT_CALL(*listener, OnMoveDone()).Times(1);
+    EXPECT_CALL(*listener, OnGameOver()).Times(1);
+
+    game.ApplyMove(Movement::LEFT);
 
     game.RemoveListener(listener.get());
-
-    //game.NotifyListenersForGameOver();
 }
 
 TEST(GameTest, ResetListenerTest)

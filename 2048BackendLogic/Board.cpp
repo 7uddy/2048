@@ -71,36 +71,6 @@ unsigned int game::Board::GetBoardSize() const
     return m_size;
 }
 
-MoveResult game::Board::SquashColumn(unsigned int columnIndex)
-{
-    MoveResult result{ 0u, false };
-    for (int destinationIndex{ (int)m_size - 1 }; destinationIndex >= 0; --destinationIndex)
-    {
-        int sourceIndex{ destinationIndex - 1 };
-        while (sourceIndex >= 0 && !m_board[sourceIndex][columnIndex])
-            --sourceIndex;
-
-        if (sourceIndex < 0)
-            break;
-
-        if (m_board[destinationIndex][columnIndex] && m_board[sourceIndex][columnIndex] && m_board[destinationIndex][columnIndex]->CanCombineWith(m_board[sourceIndex][columnIndex]))
-        {
-            PlacePiece(Position{ (unsigned int)destinationIndex, columnIndex }, m_board[sourceIndex][columnIndex]->CombinePieces(m_board[destinationIndex][columnIndex]));
-            ErasePiece(Position{ (unsigned int)sourceIndex, columnIndex });
-            result.scoreGained += GetPieceAtPosition(Position{ (unsigned int)destinationIndex, columnIndex })->GetValue();
-            result.modificationWasMade = true;
-        }
-
-        if (!m_board[destinationIndex][columnIndex])
-        {
-            SwapPiecesAtPositions(Position{ (unsigned int)destinationIndex, columnIndex }, Position{ (unsigned int)sourceIndex, columnIndex });
-            ++destinationIndex;            
-            result.modificationWasMade = true;
-        }
-    }
-    return result;
-}
-
 void game::Board::FlipVertically()
 {
     unsigned int indexLine{ 0 }, increaseFactor{ 0 };

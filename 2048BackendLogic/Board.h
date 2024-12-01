@@ -32,7 +32,6 @@ namespace game
 		unsigned int GetNumberOfPiecesOnBoard() const override;
 
 		//Functions related to movement
-		MoveResult SquashColumn(unsigned int columIndex) override;
 		void FlipVertically() override;
 		void FlipDiagonally() override;
 

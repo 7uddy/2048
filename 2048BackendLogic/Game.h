@@ -12,6 +12,8 @@ namespace game
 	public:
 		const static std::string DefaultPathToBoardFile;
 		const static unsigned int DefaultBoardSize{ 3u };
+		const static unsigned int DefaultNumberOfUsesForSpecialAbilities{ 2u };
+		const static int DefaultPieceValueThatIncreasesSpecialMovesUses{ 256 };
 
 	public:
 		Game(unsigned int sizeOfBoard);
@@ -39,6 +41,7 @@ namespace game
 		void ReadGameStateFromFile() override;
 		void SaveGameStateInFile() override;
 	private:
+		MoveResult SquashColumn(unsigned int columIndex) override;
 		void InitializeRandomPieces() override;
 		void PlacePieceAtRandomPosition() override;
 		void UpdateMaxScore() override;

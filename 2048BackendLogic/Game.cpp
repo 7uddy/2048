@@ -20,7 +20,7 @@ void game::Game::ApplyMove(Movement direction)
     bool modificationWasMade{ false };
     for (unsigned int index{ 0 }; index < m_board->GetBoardSize(); ++index)
     {
-        MoveResult result = m_board->SquashColumn(index);
+        MoveResult result = SquashColumn(index);
         modificationWasMade = modificationWasMade || result.modificationWasMade;
         m_gameState.score += result.scoreGained;
     }
@@ -250,6 +250,50 @@ unsigned int game::Game::GetScore() const
     return m_gameState.score;
 }
 
+game::MoveResult game::Game::SquashColumn(unsigned int columnIndex)
+{
+    MoveResult result{ 0u, false };
+    for (int destinationIndex{ (int)m_board->GetBoardSize() - 1 }; destinationIndex >= 0; --destinationIndex)
+    {
+        int sourceIndex{ destinationIndex - 1 };
+        while (sourceIndex >= 0 && !m_board->GetPieceAtPosition(Position{ (unsigned int) sourceIndex, columnIndex }))
+            --sourceIndex;
+
+        if (sourceIndex < 0)
+            break;
+
+        std::shared_ptr<IPiece> destinationPiece = m_board->GetPieceAtPosition(Position{ (unsigned int) destinationIndex, columnIndex });
+        std::shared_ptr<IPiece> sourcePiece = m_board->GetPieceAtPosition(Position{ (unsigned int) sourceIndex, columnIndex });
+        if (destinationPiece && sourcePiece && destinationPiece->CanCombineWith(sourcePiece))
+        {
+            std::shared_ptr<IPiece> newPiece = sourcePiece->CombinePieces(destinationPiece);
+            m_board->PlacePiece(Position{ (unsigned int)destinationIndex, columnIndex }, newPiece);
+            m_board->ErasePiece(Position{ (unsigned int)sourceIndex, columnIndex });
+            result.scoreGained += newPiece->GetValue();
+            result.modificationWasMade = true;
+
+            //Dynamically add chances to use special moves.
+            if (newPiece->GetValue() == DefaultPieceValueThatIncreasesSpecialMovesUses)
+            {
+                m_gameState.timesLeftToUseSwap = std::max(m_gameState.timesLeftToUseSwap + 1u, DefaultNumberOfUsesForSpecialAbilities);
+            }
+
+            if (newPiece->GetValue() == DefaultPieceValueThatIncreasesSpecialMovesUses)
+            {
+                m_gameState.timesLeftToUseUndo = std::max(m_gameState.timesLeftToUseUndo + 1u, DefaultNumberOfUsesForSpecialAbilities);
+            }
+        }
+
+        if (!m_board->GetPieceAtPosition(Position{ (unsigned int) destinationIndex, columnIndex }))
+        {
+            m_board->SwapPiecesAtPositions(Position{ (unsigned int) destinationIndex, columnIndex }, Position{ (unsigned int)sourceIndex, columnIndex });
+            ++destinationIndex;
+            result.modificationWasMade = true;
+        }
+    }
+    return result;
+}
+
 void game::Game::InitializeRandomPieces()
 {
     while (m_board->GetNumberOfPiecesOnBoard() < 2u)
@@ -296,7 +340,7 @@ bool game::Game::ApplyMoveUtil(Movement direction)
 
     for (unsigned int index{ 0 }; index < m_board->GetBoardSize(); ++index)
     {
-        if (m_board->SquashColumn(index).modificationWasMade)
+        if (SquashColumn(index).modificationWasMade)
             return true;
     }
 

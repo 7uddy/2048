@@ -15,17 +15,6 @@ namespace game
 		}
 	};
 
-	struct MoveResult
-	{
-		unsigned int scoreGained;
-		bool modificationWasMade;
-
-		MoveResult(unsigned int scoreGained, bool modificationWasMade) {
-			this->scoreGained = scoreGained;
-			this->modificationWasMade = modificationWasMade;
-		}
-	};
-
 	class IBoard
 	{
 	public:
@@ -44,7 +33,6 @@ namespace game
 		virtual unsigned int GetBoardSize() const = 0;
 		virtual unsigned int GetNumberOfPiecesOnBoard() const = 0;
 
-		virtual MoveResult SquashColumn(unsigned int columIndex) = 0;
 		virtual void FlipVertically() = 0;
 		virtual void FlipDiagonally() = 0;
 

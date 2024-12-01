@@ -13,6 +13,17 @@ namespace game
 		RIGHT
 	};
 
+	struct MoveResult
+	{
+		unsigned int scoreGained;
+		bool modificationWasMade;
+
+		MoveResult(unsigned int scoreGained, bool modificationWasMade) {
+			this->scoreGained = scoreGained;
+			this->modificationWasMade = modificationWasMade;
+		}
+	};
+
 	struct GameState
 	{
 		unsigned int score;
@@ -60,6 +71,7 @@ namespace game
 		virtual void SaveGameStateInFile() = 0;
 
 	private:
+		virtual MoveResult SquashColumn(unsigned int columIndex) = 0;
 		virtual void InitializeRandomPieces() = 0;
 		virtual void PlacePieceAtRandomPosition() = 0;
 		virtual void UpdateMaxScore() = 0;
