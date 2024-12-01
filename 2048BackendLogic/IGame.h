@@ -75,10 +75,13 @@ namespace game
 		virtual void InitializeRandomPieces() = 0;
 		virtual void PlacePieceAtRandomPosition() = 0;
 		virtual void UpdateMaxScore() = 0;
+		virtual void UpdateSpecialMovesOnInterface() = 0;
 
 		virtual void NotifyListenersForMoveDone() const = 0;
 		virtual void NotifyListenersForGameOver() const = 0;
 		virtual void NotifyListenersForGameReset() const = 0;
+		virtual void NotifyListenersForEnableUndoMove(bool isEnabled) const = 0;
+		virtual void NotifyListenersForEnableSwapMove(bool isEnabled) const = 0;
 
 		virtual bool ApplyMoveUtil(Movement position) = 0;
 	};

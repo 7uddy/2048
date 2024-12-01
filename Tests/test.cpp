@@ -309,7 +309,9 @@ TEST(GameTest, OnMoveDoneListenerTest)
 
     game.AddListener(listener);
 
-    EXPECT_CALL(*listener, OnMoveDone()).Times(2);
+    EXPECT_CALL(*listener, OnMoveDone()).Times(1);
+    EXPECT_CALL(*listener, OnEnableSwapTileMove(true)).Times(2);
+    EXPECT_CALL(*listener, OnEnableUndoMove(false)).Times(2);
     EXPECT_CALL(*listener, OnGameOver()).Times(1);
 
     game.ApplyMove(Movement::LEFT);
@@ -346,8 +348,9 @@ TEST(GameTest, NotifyListenersTest)
         "16 32 64 128 \n"
     );
 
-    EXPECT_CALL(*listener, OnMoveDone()).Times(1);
     EXPECT_CALL(*listener, OnGameOver()).Times(1);
+    EXPECT_CALL(*listener, OnEnableSwapTileMove(true)).Times(1);
+    EXPECT_CALL(*listener, OnEnableUndoMove(true)).Times(1);
 
     game.ApplyMove(Movement::LEFT);
 
@@ -369,8 +372,9 @@ TEST(GameTest, ResetListenerTest)
         "16 32 64 128 \n"
     );
 
-    EXPECT_CALL(*listener, OnMoveDone()).Times(1);
     EXPECT_CALL(*listener, OnGameOver()).Times(1);
+    EXPECT_CALL(*listener, OnEnableSwapTileMove(true)).Times(1);
+    EXPECT_CALL(*listener, OnEnableUndoMove(true)).Times(1);
     game.ApplyMove(Movement::LEFT);
 
     listener.reset();

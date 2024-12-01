@@ -45,12 +45,15 @@ namespace game
 		void InitializeRandomPieces() override;
 		void PlacePieceAtRandomPosition() override;
 		void UpdateMaxScore() override;
+		void UpdateSpecialMovesOnInterface() override;
 
 		bool ApplyMoveUtil(Movement position) override;
 
 		void NotifyListenersForMoveDone() const override;
 		void NotifyListenersForGameOver() const override;
 		void NotifyListenersForGameReset() const override;
+		void NotifyListenersForEnableUndoMove(bool isEnabled) const override;
+		void NotifyListenersForEnableSwapMove(bool isEnabled) const override;
 		
 
 	private:

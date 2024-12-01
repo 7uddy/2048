@@ -31,20 +31,23 @@ void game::Game::ApplyMove(Movement direction)
     if (direction == Movement::LEFT || direction == Movement::RIGHT)
         m_board->FlipDiagonally();
 
-    //TO ADD LOGIC RELATED TO RECEIVE ADDITIONAL CHANCES FOR UNDO MOVE/SWAP TILES
     if (modificationWasMade) 
     {
         UpdateMaxScore();
         m_previousGameStates.push(possiblePreviousState);
         PlacePieceAtRandomPosition();
     }
-
-    NotifyListenersForMoveDone();
     
     if (IsGameOver())
     {
         NotifyListenersForGameOver();
     }
+    else
+    {
+        NotifyListenersForMoveDone();
+    }
+
+    UpdateSpecialMovesOnInterface();
 }
 
 void game::Game::ApplySwitchTiles(Position position1, Position position2)
@@ -57,6 +60,7 @@ void game::Game::ApplySwitchTiles(Position position1, Position position2)
     m_gameState.timesLeftToUseSwap--;
     m_gameState.board = m_board->GetBoard();
 
+    NotifyListenersForEnableSwapMove(false);
     NotifyListenersForMoveDone();
 }
 
@@ -72,6 +76,7 @@ void game::Game::ApplyUndo()
     m_board->SetBoard(toBeCurrentState.board);
     m_gameState.timesLeftToUseUndo--;
 
+    NotifyListenersForEnableUndoMove(false);
     NotifyListenersForMoveDone();
 }
 
@@ -145,6 +150,28 @@ void game::Game::NotifyListenersForGameReset() const
         if (auto sp = listener.lock())
         {
             sp->OnGameReset();
+        }
+    }
+}
+
+void game::Game::NotifyListenersForEnableUndoMove(bool isEnabled) const
+{
+    for (auto& listener : m_observers)
+    {
+        if (auto sp = listener.lock())
+        {
+            sp->OnEnableUndoMove(isEnabled);
+        }
+    }
+}
+
+void game::Game::NotifyListenersForEnableSwapMove(bool isEnabled) const
+{
+    for (auto& listener : m_observers)
+    {
+        if (auto sp = listener.lock())
+        {
+            sp->OnEnableSwapTileMove(isEnabled);
         }
     }
 }
@@ -235,6 +262,19 @@ void game::Game::UpdateMaxScore()
     m_gameState.maxScore = std::max(m_gameState.maxScore, m_gameState.score);
 }
 
+void game::Game::UpdateSpecialMovesOnInterface()
+{
+    if (m_gameState.timesLeftToUseSwap && m_board->GetNumberOfPiecesOnBoard() > 2u)
+        NotifyListenersForEnableSwapMove(true);
+    else
+        NotifyListenersForEnableSwapMove(false);
+
+    if (m_gameState.timesLeftToUseUndo && !m_previousGameStates.empty())
+        NotifyListenersForEnableUndoMove(false);
+    else
+        NotifyListenersForEnableUndoMove(true);
+}
+
 
 void game::Game::ResetGame()
 {
@@ -242,6 +282,8 @@ void game::Game::ResetGame()
     m_board = std::make_unique<Board>(m_board->GetBoardSize());
     m_gameState = GameState{};
     InitializeRandomPieces();
+
+    UpdateSpecialMovesOnInterface();
     NotifyListenersForGameReset();
 }
 

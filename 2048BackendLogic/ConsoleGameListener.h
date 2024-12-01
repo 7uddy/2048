@@ -10,5 +10,7 @@ namespace game
 		void OnMoveDone() override;
 		void OnGameOver() override;
 		void OnGameReset() override;
+		void OnEnableUndoMove(bool isEnabled) override;
+		void OnEnableSwapTileMove(bool isEnabled) override;
 	};
 }
