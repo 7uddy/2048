@@ -363,7 +363,7 @@ bool game::Game::IsGameOver()
 {
     std::string currentBoard{ m_board->GetBoard() };
 
-    if (ApplyMoveUtil(Movement::UP) || ApplyMoveUtil(Movement::DOWN) || ApplyMoveUtil(Movement::LEFT) || ApplyMoveUtil(Movement::RIGHT))
+    if (WasModifiedOnMove(Movement::UP) || WasModifiedOnMove(Movement::DOWN) || WasModifiedOnMove(Movement::LEFT) || WasModifiedOnMove(Movement::RIGHT))
     {
         m_board->SetBoard(currentBoard);
         return false;
@@ -372,7 +372,7 @@ bool game::Game::IsGameOver()
     return true;
 }
 
-bool game::Game::ApplyMoveUtil(Movement direction)
+bool game::Game::WasModifiedOnMove(Movement direction)
 {
     if (direction == Movement::LEFT || direction == Movement::RIGHT)
         m_board->FlipDiagonally();

@@ -83,6 +83,6 @@ namespace game
 		virtual void NotifyListenersForEnableUndoMove(bool isEnabled) const = 0;
 		virtual void NotifyListenersForEnableSwapMove(bool isEnabled) const = 0;
 
-		virtual bool ApplyMoveUtil(Movement position) = 0;
+		virtual bool WasModifiedOnMove(Movement position) = 0;
 	};
 }

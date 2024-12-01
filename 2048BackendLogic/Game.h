@@ -47,7 +47,7 @@ namespace game
 		void UpdateMaxScore() override;
 		void UpdateSpecialMovesOnInterface() override;
 
-		bool ApplyMoveUtil(Movement position) override;
+		bool WasModifiedOnMove(Movement position) override;
 
 		void NotifyListenersForMoveDone() const override;
 		void NotifyListenersForGameOver() const override;
