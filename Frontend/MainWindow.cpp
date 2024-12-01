@@ -104,6 +104,12 @@ void MainWindow::InitializeGameBoard()
     m_scoreLabel->setStyleSheet("font-size: 20px; font-weight: bold; margin: 5px;");
     boardLayout->addWidget(m_scoreLabel, 0, 0, 1, m_boardSize); // Add score label spanning all columns
 
+    m_undoLabel = new QLabel("Undo Left: 2", this);
+    m_undoLabel->setAlignment(Qt::AlignRight);
+    m_undoLabel->setStyleSheet("font-size: 13px; font-weight: bold; margin: 5px;");
+    boardLayout->addWidget(m_undoLabel, 0, 0, 1, m_boardSize); // Add score label spanning all columns
+
+
 
     std::string boardString = this->gameLogic->GetBoard();
     std::istringstream stream(boardString);
@@ -164,6 +170,9 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
     else if (event->key() == Qt::Key_Space) {
         this->gameLogic->ResetGame();
     }
+    else if (event->key() == Qt::Key_U) {
+        this->gameLogic->ApplyUndo();
+    }
     else {
         std::cout << "A fost apăsată o altă tastă!" << std::endl;
     }
@@ -208,6 +217,8 @@ void MainWindow::LoadGameBoard() {
 void MainWindow::UpdateGameBoard()
 {
     this->m_scoreLabel->setText(QString("Score: %1").arg(this->gameLogic->GetScore()));
+    this->m_undoLabel->setText(QString("Undo Left: %1").arg(this->gameLogic->GetTimesLeftToUseUndo()));
+
     std::string boardString = this->gameLogic->GetBoard();
     std::istringstream stream(boardString);
     std::string token;

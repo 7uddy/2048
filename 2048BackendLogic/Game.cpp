@@ -202,7 +202,7 @@ void game::Game::ReadGameStateFromFile()
         if (lineNumber == 0)
         {
             std::istringstream scoreStream(line);
-            if (!(scoreStream >> m_gameState.score >> m_gameState.maxScore))
+            if (!(scoreStream >> m_gameState.score >> m_gameState.maxScore >> m_gameState.timesLeftToUseUndo    ))
             {
                 file.close();
                 throw std::runtime_error("Eroare la citirea scorurilor din fisier: " + m_pathToFileWithBoard);
@@ -251,7 +251,7 @@ void game::Game::SaveGameStateInFile()
     file << "#      -on the first line, the first integer represents the current score;\n";
     file << "#      -on the first line, the second integer represents the maximum acquired score;\n";
     file << "#      -on the following lines, the numbers represent the game board pieces.\n";
-    file << m_gameState.score << " " << m_gameState.maxScore << "\n";
+    file << m_gameState.score << " " << m_gameState.maxScore << " " << m_gameState.timesLeftToUseUndo << "\n";
     file << m_gameState.board;
 
     file.close();
@@ -283,6 +283,7 @@ void game::Game::UpdateSpecialMovesOnInterface()
 
 void game::Game::ResetGame()
 {
+    
     m_previousGameStates = std::stack<GameState>();
     m_board = std::make_unique<Board>(m_board->GetBoardSize());
     m_gameState = GameState{};
@@ -295,6 +296,11 @@ void game::Game::ResetGame()
 unsigned int game::Game::GetScore() const
 {
     return m_gameState.score;
+}
+
+unsigned int game::Game::GetTimesLeftToUseUndo() const
+{
+    return m_gameState.timesLeftToUseUndo;
 }
 
 game::MoveResult game::Game::SquashColumn(unsigned int columnIndex)

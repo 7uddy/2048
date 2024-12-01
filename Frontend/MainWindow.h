@@ -22,6 +22,7 @@ private:
     QGridLayout* boardLayout;
     QLabel* boardTiles[4][4];
     QLabel* m_scoreLabel;
+    QLabel* m_undoLabel;
     game::Game* gameLogic;
     std::shared_ptr<GameListener> listener;
     unsigned int m_boardSize = 4;
