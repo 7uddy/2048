@@ -176,6 +176,11 @@ void game::Game::NotifyListenersForEnableSwapMove(bool isEnabled) const
     }
 }
 
+game::GameState game::Game::GetGameState() const
+{
+    return m_gameState;
+}
+
 void game::Game::ReadGameStateFromFile()
 {
     std::ifstream file{ m_pathToFileWithBoard };

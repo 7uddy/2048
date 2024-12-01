@@ -26,6 +26,7 @@ namespace game
 
 		void ResetGame() override;
 
+		GameState GetGameState() const override;
 		unsigned int GetScore() const override;
 		unsigned int GetMaxScore() const override;
 

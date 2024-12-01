@@ -60,6 +60,7 @@ namespace game
 		virtual void SetBoard(const std::string& board) = 0;
 		virtual std::string GetBoard() const = 0;
 
+		virtual GameState GetGameState() const = 0;
 		virtual unsigned int GetScore() const = 0;
 		virtual unsigned int GetMaxScore() const = 0;
 		virtual std::string GetPathToBoardFile() const = 0;
