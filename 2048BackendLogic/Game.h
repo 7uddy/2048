@@ -29,8 +29,6 @@ namespace game
 		GameState GetGameState() const override;
 		unsigned int GetScore() const override;
 		unsigned int GetMaxScore() const override;
-		unsigned int GetTimesLeftToUseUndo() const override;
-		unsigned int GetTimesLeftToUseSwap() const override;
 
 		void SetPathToBoardFile(const std::string& newPath) override;
 		std::string GetPathToBoardFile() const override;

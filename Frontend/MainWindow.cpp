@@ -253,11 +253,12 @@ void MainWindow::LoadGameBoard() {
 void MainWindow::UpdateGameBoard()
 {
     // Update score and undo labels
-    this->m_scoreLabel->setText(QString("Score: %1").arg(this->gameLogic->GetScore()));
-    this->m_undoLabel->setText(QString("Undos Left: %1").arg(this->gameLogic->GetTimesLeftToUseUndo()));
-    this->m_swapLabel->setText(QString("Swaps Left: %1").arg(this->gameLogic->GetTimesLeftToUseSwap()));
+    game::GameState currentGameState = this->gameLogic->GetGameState();
+    this->m_scoreLabel->setText(QString("Score: %1").arg(currentGameState.score));
+    this->m_undoLabel->setText(QString("Undos Left: %1").arg(currentGameState.timesLeftToUseUndo));
+    this->m_swapLabel->setText(QString("Swaps Left: %1").arg(currentGameState.timesLeftToUseSwap));
 
-    std::string boardString = this->gameLogic->GetBoard();
+    std::string boardString = currentGameState.board;
     std::istringstream stream(boardString);
     std::string token;
 
@@ -290,7 +291,7 @@ void MainWindow::UpdateGameBoard()
                 "}"
             ).arg(color));  
         }
-        if (!(this->gameLogic->GetTimesLeftToUseSwap() > 0)) { 
+        if (!(currentGameState.timesLeftToUseSwap > 0u)) {
             for (int row = 1; row <= 4; ++row) {
                 for (int column = 0; column < 4; ++column) {
                     QPushButton* tile = qobject_cast<QPushButton*>(this->boardLayout->itemAtPosition(row, column)->widget());
