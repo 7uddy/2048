@@ -72,9 +72,10 @@ void game::Game::ApplyUndo()
     GameState toBeCurrentState = m_previousGameStates.top();
     m_previousGameStates.pop();
     
+    unsigned int currentTimeLeftToUseUndo{ m_gameState.timesLeftToUseUndo };
     m_gameState = toBeCurrentState;
     m_board->SetBoard(toBeCurrentState.board);
-    m_gameState.timesLeftToUseUndo--;
+    m_gameState.timesLeftToUseUndo = --currentTimeLeftToUseUndo;
 
     NotifyListenersForEnableUndoMove(false);
     NotifyListenersForMoveDone();
