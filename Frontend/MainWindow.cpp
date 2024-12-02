@@ -1,8 +1,5 @@
 ﻿#include "MainWindow.h"
-#include <QMenuBar>
-#include <QMessageBox>
-#include <QFileDialog>
-#include <QPushButton>
+
 
 
 MainWindow::MainWindow(QWidget* parent)
@@ -23,6 +20,7 @@ MainWindow::MainWindow(QWidget* parent)
     // Menu bar setup
 
     QMenu* gameMenu = menuBar()->addMenu(tr("&Game"));
+
     QAction* saveAction = gameMenu->addAction(tr("&Save"));
     QAction* loadAction = gameMenu->addAction(tr("&Load"));
     QAction* resetAction = gameMenu->addAction(tr("&Reset"));
@@ -67,7 +65,12 @@ QString MainWindow::GenerateColor(int value)
     return color.name();
 }
 
-
+QString MainWindow::DarkenColor(const QString& base, int percentage)
+{
+    QColor color(base);
+    color = color.darker(percentage); // Darken by percentage (e.g., 120% is darker)
+    return color.name();
+}
 
 
 void MainWindow::UpdateTileColor(QLabel* label, const QString& color) 
@@ -92,6 +95,12 @@ void MainWindow::UpdateTileColor(QLabel* label, const QString& color)
 
 void MainWindow::InitializeGameBoard()
 {
+    this->m_selectedPosition1.row = 0;
+    this->m_selectedPosition1.column = 0;
+    this->m_selectedPosition2.row = 0;
+    this->m_selectedPosition2.column = 0;
+    this->m_isFirstSelection = true;
+
     this->gameLogic->ResetGame();
 
     // Clear existing items if necessary
@@ -114,8 +123,6 @@ void MainWindow::InitializeGameBoard()
     m_swapLabel->setAlignment(Qt::AlignLeft);
     m_swapLabel->setStyleSheet("font-size: 13px; font-weight: bold; margin: 5px;");
     boardLayout->addWidget(m_swapLabel, 0, 0, 1, m_boardSize);
-
-
 
 
     std::string boardString = this->gameLogic->GetBoard();
@@ -146,18 +153,7 @@ void MainWindow::InitializeGameBoard()
         QString color = this->GenerateColor(text.toInt());
 
         // Set a stylesheet for each tile, passing the generated color as a parameter
-        tile->setStyleSheet(QString(
-            "QPushButton { "
-            "border: 2px solid #BBADA0; "  // Border color
-            "border-radius: 10px; "        // Rounded corners
-            "background-color: %1; "      // Dynamic background
-            "font-size: 24px; "           // Font size
-            "font-weight: bold; "         // Bold text
-            "} "
-            "QPushButton:disabled { "
-            "color: black; "              // Text color when disabled
-            "}"
-        ).arg(color));
+        UpdateTileStyleSheet(tile, color);
 
         column++;
         if (column == 4)
@@ -170,18 +166,37 @@ void MainWindow::InitializeGameBoard()
 
 void MainWindow::HandleTileClick(int row, int column)
 {
-    game::Position currentPosition(row - 1, column); // Adjust if Position uses zero-based indexing
+    game::Position currentPosition(row - 1, column); // Adjust if Position uses zero-based 
 
     if (m_isFirstSelection) {
         m_selectedPosition1 = currentPosition;
+        QPushButton* clickedButton = qobject_cast<QPushButton*>(this->boardLayout->itemAtPosition(row, column)->widget());
+        
+        //if value is 0, ignore
+        if (clickedButton->text().toInt() == 0)
+            return;
+
+        QString darkColor = DarkenColor(GenerateColor(clickedButton->text().toInt()));
+        UpdateTileStyleSheet(clickedButton, darkColor);
         m_isFirstSelection = false;
     }
     else {
-        m_selectedPosition2 = currentPosition;
-        m_isFirstSelection = true;
+        QPushButton* clickedButton = qobject_cast<QPushButton*>(this->boardLayout->itemAtPosition(row, column)->widget());
+        
+        //if value is 0, ignore
+        if (clickedButton->text().toInt() == 0)
+        {
+            m_isFirstSelection = true;
+            this->UpdateGameBoard();
+            return;
+        }
 
+        m_isFirstSelection = true;
+        m_selectedPosition2 = currentPosition;
+    
         // Perform the tile swap
-        this->gameLogic->ApplySwitchTiles(m_selectedPosition1, m_selectedPosition2);
+        if(m_selectedPosition1.row != m_selectedPosition2.row || m_selectedPosition1.column != m_selectedPosition2.column)
+            this->gameLogic->ApplySwitchTiles(m_selectedPosition1, m_selectedPosition2);
 
         // Update the game board visually
         UpdateGameBoard();
@@ -204,7 +219,7 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
         this->gameLogic->ApplyMove(game::Movement::RIGHT);
     }
     else if (event->key() == Qt::Key_Space) {
-        this->gameLogic->ResetGame();
+        this->InitializeGameBoard();
     }
     else if (event->key() == Qt::Key_U) {
         this->gameLogic->ApplyUndo();
@@ -278,28 +293,13 @@ void MainWindow::UpdateGameBoard()
             QString color = this->GenerateColor(text.toInt());
 
             // Update button's stylesheet
-            tile->setStyleSheet(QString(
-                "QPushButton { "
-                "border: 2px solid #BBADA0; "  // Border color
-                "border-radius: 10px; "        // Rounded corners
-                "background-color: %1; "      // Dynamic background
-                "font-size: 24px; "           // Font size
-                "font-weight: bold; "         // Bold text
-                "} "
-                "QPushButton:disabled { "
-                "color: black; "              // Text color when disabled
-                "}"
-            ).arg(color));  
+            UpdateTileStyleSheet(tile, color);
         }
         if (!(currentGameState.timesLeftToUseSwap > 0u)) {
-            for (int row = 1; row <= 4; ++row) {
-                for (int column = 0; column < 4; ++column) {
-                    QPushButton* tile = qobject_cast<QPushButton*>(this->boardLayout->itemAtPosition(row, column)->widget());
-                    if (tile) {
-                        tile->setEnabled(false); // Disable interaction
-                    }
-                }
-            }
+            UpdateTileState(row, column, false);
+        }
+        else {
+            UpdateTileState(row, column, true);
         }
 
         column++;
@@ -307,6 +307,31 @@ void MainWindow::UpdateGameBoard()
         {
             column = 0;
             row++;
+        }
+    }
+}
+
+void MainWindow::UpdateTileStyleSheet(QPushButton* tile, QString color)
+{
+    tile->setStyleSheet(QString(
+        "QPushButton { "
+        "border: 2px solid #BBADA0; "  // Border color
+        "border-radius: 10px; "        // Rounded corners
+        "background-color: %1; "      // Dynamic background
+        "font-size: 24px; "           // Font size
+        "font-weight: bold; "         // Bold text
+        "} "
+    ).arg(color));
+}
+
+void MainWindow::UpdateTileState(int row, int column, bool value)
+{
+    for (int row = 1; row <= 4; ++row) {
+        for (int column = 0; column < 4; ++column) {
+            QPushButton* tile = qobject_cast<QPushButton*>(this->boardLayout->itemAtPosition(row, column)->widget());
+            if (tile) {
+                tile->setEnabled(value); // Toggle interaction
+            }
         }
     }
 }

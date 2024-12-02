@@ -76,6 +76,7 @@ void game::Game::ApplyUndo()
     m_gameState = toBeCurrentState;
     m_board->SetBoard(toBeCurrentState.board);
     m_gameState.timesLeftToUseUndo = --currentTimeLeftToUseUndo;
+    m_gameState.timesLeftToUseSwap = toBeCurrentState.timesLeftToUseSwap;
 
     NotifyListenersForEnableUndoMove(false);
     NotifyListenersForMoveDone();
@@ -203,7 +204,7 @@ void game::Game::ReadGameStateFromFile()
         if (lineNumber == 0)
         {
             std::istringstream scoreStream(line);
-            if (!(scoreStream >> m_gameState.score >> m_gameState.maxScore >> m_gameState.timesLeftToUseUndo    ))
+            if (!(scoreStream >> m_gameState.score >> m_gameState.maxScore >> m_gameState.timesLeftToUseUndo >> m_gameState.timesLeftToUseSwap))
             {
                 file.close();
                 throw std::runtime_error("Eroare la citirea scorurilor din fisier: " + m_pathToFileWithBoard);
@@ -252,7 +253,7 @@ void game::Game::SaveGameStateInFile()
     file << "#      -on the first line, the first integer represents the current score;\n";
     file << "#      -on the first line, the second integer represents the maximum acquired score;\n";
     file << "#      -on the following lines, the numbers represent the game board pieces.\n";
-    file << m_gameState.score << " " << m_gameState.maxScore << " " << m_gameState.timesLeftToUseUndo << "\n";
+    file << m_gameState.score << " " << m_gameState.maxScore << " " << m_gameState.timesLeftToUseUndo << " " << m_gameState.timesLeftToUseSwap << "\n";
     file << m_gameState.board;
 
     file.close();

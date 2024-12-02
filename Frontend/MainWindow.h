@@ -3,6 +3,10 @@
 #include <QKeyEvent>
 #include <QLabel>
 #include <QRegularExpression>
+#include <QMenuBar>
+#include <QMessageBox>
+#include <QFileDialog>
+#include <QPushButton>
 #include "GameListener.h"
 #include "Game.h"
 
@@ -34,11 +38,13 @@ private:
 
     void UpdateTileColor(QLabel*,const QString&);
     QString GenerateColor(int);
+    QString DarkenColor(const QString&, int percentage = 120);
     void InitializeGameBoard();
     void HandleTileClick(int,int);
-    void ResetGameBoard();
     void SaveGameBoard();
     void LoadGameBoard();
     void UpdateGameBoard();
+    void UpdateTileStyleSheet(QPushButton* tile,QString color);
+    void UpdateTileState(int,int,bool);
     bool IsBoardEmpty();
 };
