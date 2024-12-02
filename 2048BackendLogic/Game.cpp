@@ -303,6 +303,13 @@ unsigned int game::Game::GetTimesLeftToUseUndo() const
     return m_gameState.timesLeftToUseUndo;
 }
 
+unsigned int game::Game::GetTimesLeftToUseSwap() const
+{
+    return m_gameState.timesLeftToUseSwap;
+}
+
+
+
 game::MoveResult game::Game::SquashColumn(unsigned int columnIndex)
 {
     MoveResult result{ 0u, false };

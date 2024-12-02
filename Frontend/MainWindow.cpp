@@ -2,6 +2,7 @@
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QPushButton>
 
 
 MainWindow::MainWindow(QWidget* parent)
@@ -104,10 +105,16 @@ void MainWindow::InitializeGameBoard()
     m_scoreLabel->setStyleSheet("font-size: 20px; font-weight: bold; margin: 5px;");
     boardLayout->addWidget(m_scoreLabel, 0, 0, 1, m_boardSize); // Add score label spanning all columns
 
-    m_undoLabel = new QLabel("Undo Left: 2", this);
+    m_undoLabel = new QLabel("Undos Left: 2", this);
     m_undoLabel->setAlignment(Qt::AlignRight);
     m_undoLabel->setStyleSheet("font-size: 13px; font-weight: bold; margin: 5px;");
-    boardLayout->addWidget(m_undoLabel, 0, 0, 1, m_boardSize); // Add score label spanning all columns
+    boardLayout->addWidget(m_undoLabel, 0, 0, 1, m_boardSize); 
+
+    m_swapLabel = new QLabel("Swaps Left: 2", this);
+    m_swapLabel->setAlignment(Qt::AlignLeft);
+    m_swapLabel->setStyleSheet("font-size: 13px; font-weight: bold; margin: 5px;");
+    boardLayout->addWidget(m_swapLabel, 0, 0, 1, m_boardSize);
+
 
 
 
@@ -119,30 +126,38 @@ void MainWindow::InitializeGameBoard()
     int row = 1, column = 0;
     while (stream >> token)
     {
-        //Create a new tile to add as a widget in the grid, set it's text as the one in the game
-        QLabel* tile = new QLabel();
+        // Create a new tile as a QPushButton to add as a widget in the grid
+        QPushButton* tile = new QPushButton();
         QString text = QString::fromUtf8(token.c_str());
 
         this->boardLayout->addWidget(tile, row, column);
 
-        //Set the text to 0 so empty tiles will get a basic color, center the text
+        tile->setFixedSize(200, 120);
+
+        // Set the text to 0 so empty tiles will get a basic color, center the text
         tile->setText(text.toInt() > 0 ? QString::number((text).toInt()) : "");
-        tile->setAlignment(Qt::AlignCenter);
-        
+        tile->setEnabled(true); // Disable buttons to make them behave like tiles
+        tile->setFocusPolicy(Qt::NoFocus);
+
+        connect(tile, &QPushButton::clicked, this, [this, row, column]() {
+            this->HandleTileClick(row, column);
+            });
 
         QString color = this->GenerateColor(text.toInt());
 
-        //Set a stylesheet for each tile, passing the generated color as a parameter
+        // Set a stylesheet for each tile, passing the generated color as a parameter
         tile->setStyleSheet(QString(
-            "QLabel { "
+            "QPushButton { "
             "border: 2px solid #BBADA0; "  // Border color
             "border-radius: 10px; "        // Rounded corners
             "background-color: %1; "      // Dynamic background
             "font-size: 24px; "           // Font size
             "font-weight: bold; "         // Bold text
+            "} "
+            "QPushButton:disabled { "
+            "color: black; "              // Text color when disabled
             "}"
         ).arg(color));
-
 
         column++;
         if (column == 4)
@@ -152,6 +167,27 @@ void MainWindow::InitializeGameBoard()
         }
     }
 }
+
+void MainWindow::HandleTileClick(int row, int column)
+{
+    game::Position currentPosition(row - 1, column); // Adjust if Position uses zero-based indexing
+
+    if (m_isFirstSelection) {
+        m_selectedPosition1 = currentPosition;
+        m_isFirstSelection = false;
+    }
+    else {
+        m_selectedPosition2 = currentPosition;
+        m_isFirstSelection = true;
+
+        // Perform the tile swap
+        this->gameLogic->ApplySwitchTiles(m_selectedPosition1, m_selectedPosition2);
+
+        // Update the game board visually
+        UpdateGameBoard();
+    }
+}
+
 
 void MainWindow::keyPressEvent(QKeyEvent* event)
 {
@@ -216,28 +252,54 @@ void MainWindow::LoadGameBoard() {
 
 void MainWindow::UpdateGameBoard()
 {
+    // Update score and undo labels
     this->m_scoreLabel->setText(QString("Score: %1").arg(this->gameLogic->GetScore()));
-    this->m_undoLabel->setText(QString("Undo Left: %1").arg(this->gameLogic->GetTimesLeftToUseUndo()));
+    this->m_undoLabel->setText(QString("Undos Left: %1").arg(this->gameLogic->GetTimesLeftToUseUndo()));
+    this->m_swapLabel->setText(QString("Swaps Left: %1").arg(this->gameLogic->GetTimesLeftToUseSwap()));
 
     std::string boardString = this->gameLogic->GetBoard();
     std::istringstream stream(boardString);
     std::string token;
 
-    //Start row count from 1, as row 0 has the score
+    // Start row count from 1, as row 0 has the score
     int row = 1, column = 0;
     while (stream >> token)
     {
-        //Same as before, generate a QString for each label, cast every grid widget as a lavel and style based on value
-        QString text = QString::fromUtf8(token.c_str());
-        QLabel* tile = qobject_cast<QLabel*>(this->boardLayout->itemAtPosition(row, column)->widget());
-        tile->setText(text.toInt() > 0 ? QString::number((text).toInt()) : "");
-        tile->setAlignment(Qt::AlignCenter);
-        this->boardLayout->addWidget(tile, row, column);
+        // Get the button at the current position in the grid
+        QPushButton* tile = qobject_cast<QPushButton*>(this->boardLayout->itemAtPosition(row, column)->widget());
 
-        QString color = this->GenerateColor(text.toInt());
+        if (tile) {
+            // Update button text
+            QString text = QString::fromUtf8(token.c_str());
+            tile->setText(text.toInt() > 0 ? QString::number((text).toInt()) : "");
 
-        //Update a tile's color without changing it's entire stylesheet
-        UpdateTileColor(tile, color);
+            // Generate color based on tile value
+            QString color = this->GenerateColor(text.toInt());
+
+            // Update button's stylesheet
+            tile->setStyleSheet(QString(
+                "QPushButton { "
+                "border: 2px solid #BBADA0; "  // Border color
+                "border-radius: 10px; "        // Rounded corners
+                "background-color: %1; "      // Dynamic background
+                "font-size: 24px; "           // Font size
+                "font-weight: bold; "         // Bold text
+                "} "
+                "QPushButton:disabled { "
+                "color: black; "              // Text color when disabled
+                "}"
+            ).arg(color));  
+        }
+        if (!(this->gameLogic->GetTimesLeftToUseSwap() > 0)) { 
+            for (int row = 1; row <= 4; ++row) {
+                for (int column = 0; column < 4; ++column) {
+                    QPushButton* tile = qobject_cast<QPushButton*>(this->boardLayout->itemAtPosition(row, column)->widget());
+                    if (tile) {
+                        tile->setEnabled(false); // Disable interaction
+                    }
+                }
+            }
+        }
 
         column++;
         if (column == 4)

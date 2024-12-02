@@ -8,6 +8,7 @@ namespace game
 	{
 		unsigned int row;
 		unsigned int column;
+		Position() : row(0), column(0) {}
 
 		Position(unsigned int row, unsigned int column) {
 			this->row = row;
