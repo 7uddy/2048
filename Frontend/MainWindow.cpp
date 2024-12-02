@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget* parent)
     centralWidget->setLayout(boardLayout);
 
     this->gameLogic->AddListener(listener);
-    this->InitializeGameBoard();
+    this->InitialiseGameBoard();
 
     // Menu bar setup
 
@@ -37,7 +37,7 @@ MainWindow::MainWindow(QWidget* parent)
     );
 
     //TODO implement board reset action
-    connect(resetAction, &QAction::triggered, this, &MainWindow::InitializeGameBoard);
+    connect(resetAction, &QAction::triggered, this, &MainWindow::InitialiseGameBoard);
     connect(saveAction, &QAction::triggered, this, &MainWindow::SaveGameBoard);
     connect(loadAction, &QAction::triggered, this, &MainWindow::LoadGameBoard);
     connect(exitAction, &QAction::triggered, this, &MainWindow::close);
@@ -93,7 +93,7 @@ void MainWindow::UpdateTileColor(QLabel* label, const QString& color)
     label->setStyleSheet(newStyle);
 }
 
-void MainWindow::InitializeGameBoard()
+void MainWindow::InitialiseGameBoard()
 {
     this->m_selectedPosition1.row = 0;
     this->m_selectedPosition1.column = 0;
@@ -114,12 +114,12 @@ void MainWindow::InitializeGameBoard()
     m_scoreLabel->setStyleSheet("font-size: 20px; font-weight: bold; margin: 5px;");
     boardLayout->addWidget(m_scoreLabel, 0, 0, 1, m_boardSize); // Add score label spanning all columns
 
-    m_undoLabel = new QLabel("Undos Left: 2", this);
+    m_undoLabel = new QLabel("Undos Left: 2 \n (Press U to undo)", this);
     m_undoLabel->setAlignment(Qt::AlignRight);
     m_undoLabel->setStyleSheet("font-size: 13px; font-weight: bold; margin: 5px;");
     boardLayout->addWidget(m_undoLabel, 0, 0, 1, m_boardSize); 
 
-    m_swapLabel = new QLabel("Swaps Left: 2", this);
+    m_swapLabel = new QLabel("Swaps Left: 2 \n (Click two tiles to swap them)", this);
     m_swapLabel->setAlignment(Qt::AlignLeft);
     m_swapLabel->setStyleSheet("font-size: 13px; font-weight: bold; margin: 5px;");
     boardLayout->addWidget(m_swapLabel, 0, 0, 1, m_boardSize);
@@ -219,7 +219,7 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
         this->gameLogic->ApplyMove(game::Movement::RIGHT);
     }
     else if (event->key() == Qt::Key_Space) {
-        this->InitializeGameBoard();
+        this->InitialiseGameBoard();
     }
     else if (event->key() == Qt::Key_U) {
         this->gameLogic->ApplyUndo();
@@ -270,8 +270,8 @@ void MainWindow::UpdateGameBoard()
     // Update score and undo labels
     game::GameState currentGameState = this->gameLogic->GetGameState();
     this->m_scoreLabel->setText(QString("Score: %1").arg(currentGameState.score));
-    this->m_undoLabel->setText(QString("Undos Left: %1").arg(currentGameState.timesLeftToUseUndo));
-    this->m_swapLabel->setText(QString("Swaps Left: %1").arg(currentGameState.timesLeftToUseSwap));
+    this->m_undoLabel->setText(QString("Undos Left: %1 \n (Press U to undo)").arg(currentGameState.timesLeftToUseUndo));
+    this->m_swapLabel->setText(QString("Swaps Left: %1 \n (Click two tiles to swap them)").arg(currentGameState.timesLeftToUseSwap));
 
     std::string boardString = currentGameState.board;
     std::istringstream stream(boardString);

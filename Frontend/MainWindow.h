@@ -39,7 +39,7 @@ private:
     void UpdateTileColor(QLabel*,const QString&);
     QString GenerateColor(int);
     QString DarkenColor(const QString&, int percentage = 120);
-    void InitializeGameBoard();
+    void InitialiseGameBoard();
     void HandleTileClick(int,int);
     void SaveGameBoard();
     void LoadGameBoard();
