@@ -63,7 +63,6 @@ namespace game
 		virtual GameState GetGameState() const = 0;
 		virtual unsigned int GetScore() const = 0;
 		virtual unsigned int GetMaxScore() const = 0;
-		virtual unsigned int GetTimesLeftToUseUndo() const = 0;
 		virtual std::string GetPathToBoardFile() const = 0;
 
 		virtual void AddListener(std::shared_ptr<IGameListener> observer) = 0;

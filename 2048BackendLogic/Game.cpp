@@ -60,7 +60,7 @@ void game::Game::ApplySwitchTiles(Position position1, Position position2)
     m_gameState.timesLeftToUseSwap--;
     m_gameState.board = m_board->GetBoard();
 
-    NotifyListenersForEnableSwapMove(false);
+    NotifyListenersForEnableSwapMove(m_gameState.timesLeftToUseSwap != 0u);
     NotifyListenersForMoveDone();
 }
 
@@ -297,11 +297,6 @@ void game::Game::ResetGame()
 unsigned int game::Game::GetScore() const
 {
     return m_gameState.score;
-}
-
-unsigned int game::Game::GetTimesLeftToUseUndo() const
-{
-    return m_gameState.timesLeftToUseUndo;
 }
 
 game::MoveResult game::Game::SquashColumn(unsigned int columnIndex)
